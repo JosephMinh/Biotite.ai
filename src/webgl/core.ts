@@ -17,8 +17,8 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  CylinderGeometry,
   Group,
+  IcosahedronGeometry,
   Mesh,
   PerspectiveCamera,
   Points,
@@ -73,12 +73,20 @@ const sheetFragment = /* glsl */ `
     return fract(sin(dot(floor(p * 40.0), vec3(12.9898, 78.233, 37.719))) * 43758.5453);
   }
 
+  // Per-cell random vector for the glitter micro-crystals.
+  vec3 hash3(vec3 cell) {
+    return fract(sin(vec3(
+      dot(cell, vec3(127.1, 311.7, 74.7)),
+      dot(cell, vec3(269.5, 183.3, 246.1)),
+      dot(cell, vec3(113.5, 271.9, 124.6)))) * 43758.5453);
+  }
+
   void main() {
     // Faceted normals from screen-space derivatives (true flat shading).
     vec3 n = normalize(cross(dFdx(vViewPos), dFdy(vViewPos)));
     vec3 v = normalize(-vViewPos);
     float facing = abs(dot(n, v));
-    float fresnel = pow(1.0 - facing, 2.7);
+    float fresnel = pow(1.0 - facing, 6.5);
 
     // Near-black mineral base with a faint onyx cast.
     vec3 base = vec3(0.016, 0.020, 0.017);
@@ -89,17 +97,17 @@ const sheetFragment = /* glsl */ `
     float diff = max(dot(n, keyL), 0.0);
     float fill = max(dot(n, fillL), 0.0);
     vec3 col = base
-      + vec3(0.24, 0.25, 0.245) * pow(diff, 1.8) * 0.11
-      + vec3(0.20, 0.185, 0.17) * fill * 0.03;
+      + vec3(0.24, 0.25, 0.245) * pow(diff, 2.2) * 0.06
+      + vec3(0.20, 0.185, 0.17) * fill * 0.015;
 
     // Per-facet tonal variation so faces read as individual crystal planes.
     float facet = hash(n) * 0.5 + 0.5;
-    col *= 0.75 + facet * 0.5;
+    col *= 0.65 + facet * 0.55;
 
     // Silver cleavage-edge light with a faint spectral sheen.
     vec3 sheen = 0.5 + 0.5 * cos(6.2832 * (facing * 1.6 + vec3(0.0, 0.33, 0.67)));
-    vec3 edge = vec3(0.64, 0.65, 0.64) + sheen * 0.14;
-    col += edge * fresnel * 0.72;
+    vec3 edge = vec3(0.64, 0.65, 0.64) + sheen * 0.08;
+    col += edge * fresnel * 0.8;
 
     // Molten interior: garnet under-light that leaks from the stack's heart.
     float interior = 1.0 - smoothstep(0.0, 2.3, length(vLocal.xz));
@@ -110,6 +118,21 @@ const sheetFragment = /* glsl */ `
 
     // Garnet edge catch on rims nearest the heart.
     col += garnet * fresnel * interior * uEnergy * 0.5 * pulse;
+
+    // Schist glitter: micro-crystal cells whose random orientations flash
+    // when they align with the half-vector — the rock twinkles as it turns.
+    vec3 cell = floor(vLocal * 34.0);
+    vec3 hv = hash3(cell);
+    vec3 micro = normalize(hv * 2.0 - 1.0);
+    vec3 half1 = normalize(v + keyL);
+    float align = max(dot(micro, half1), 0.0);
+    float shimmer = 0.7 + 0.3 * sin(uTime * 2.2 + hv.y * 43.0);
+    float glint = pow(align, 46.0) * step(0.62, hv.x) * shimmer;
+    glint *= 0.3 + 0.7 * facing;
+    col += vec3(0.92, 0.94, 0.92) * glint * 2.3;
+    // Rare warm glints near the heart.
+    col += vec3(0.86, 0.20, 0.07)
+      * pow(align, 80.0) * step(0.9, hv.z) * interior * 1.2;
 
     gl_FragColor = vec4(col, 1.0);
   }
@@ -216,9 +239,11 @@ const particleVertex = /* glsl */ `
   attribute vec3 aColor;
   varying vec3 vColor;
   varying float vFade;
+  varying float vSeed;
 
   void main() {
     vColor = aColor;
+    vSeed = aSeed;
     vec3 pos = position;
     float speed = (0.06 + aSeed * 0.14) * uRise;
     pos.y = mod(pos.y + uTime * speed + aSeed * uSpan, uSpan) - uSpan * 0.5;
@@ -234,40 +259,65 @@ const particleVertex = /* glsl */ `
 
 const particleFragment = /* glsl */ `
   uniform float uAlpha;
+  uniform float uTime;
   varying vec3 vColor;
   varying float vFade;
+  varying float vSeed;
 
   void main() {
     float d = length(gl_PointCoord - 0.5);
-    float alpha = smoothstep(0.5, 0.12, d) * uAlpha * vFade;
+    // Per-particle twinkle: each mote flickers on its own rhythm.
+    float tw = 0.55 + 0.45 * sin(uTime * (1.2 + vSeed * 2.6) + vSeed * 61.0);
+    float alpha = smoothstep(0.5, 0.12, d) * uAlpha * vFade * tw;
     gl_FragColor = vec4(vColor, alpha);
   }
 `;
 
 /* --------------------------- geometry ---------------------------------- */
 
-/** Deterministic irregular silhouette shared by a sheet's top/bottom rings. */
-function silhouette(angle: number, seed: number): number {
-  return (
-    Math.sin(angle * 3.0 + seed) * 0.5 +
-    Math.sin(angle * 7.0 + seed * 2.1) * 0.3 +
-    Math.sin(angle * 2.0 + seed * 0.7) * 0.2
-  );
-}
-
-function createSheetGeometry(radius: number, seed: number): CylinderGeometry {
-  const geo = new CylinderGeometry(radius, radius * 0.96, 0.21, 10, 1, false);
+/**
+ * A cleaved mica flake: a finely subdivided icosahedron flattened into a
+ * lens-thin slab, with multi-octave radial crag for an irregular crystalline
+ * silhouette and stepped relief across the faces. Flat shading in the
+ * fragment shader turns every triangle into a visible micro-facet, so higher
+ * `detail` directly buys more sparkle.
+ */
+function createSheetGeometry(
+  radius: number,
+  seed: number,
+  detail: number
+): BufferGeometry {
+  const geo = new IcosahedronGeometry(1, detail);
   const pos = geo.attributes.position as BufferAttribute;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
+    const y = pos.getY(i);
     const z = pos.getZ(i);
-    const r = Math.hypot(x, z);
-    if (r < 1e-5) continue;
-    const angle = Math.atan2(z, x);
-    const jitter = 1 + 0.2 * silhouette(angle, seed);
-    pos.setX(i, x * jitter);
-    pos.setZ(i, z * jitter);
-    pos.setY(i, pos.getY(i) + 0.05 * Math.sin(angle * 2.0 + seed));
+    const len = Math.hypot(x, y, z) || 1;
+    const nx = x / len;
+    const ny = y / len;
+    const nz = z / len;
+
+    // Sleek silhouette: long, elegant undulations — cut glass, not rubble.
+    const crag =
+      0.09 * Math.sin(3.1 * nx + seed) * Math.cos(2.7 * nz + seed * 1.3) +
+      0.05 * Math.sin(7.3 * nz + seed * 2.1) * Math.sin(5.9 * nx + seed * 0.7) +
+      0.02 * Math.sin(13.7 * nx * nz + seed * 3.3);
+    const r = 1 + crag;
+
+    const px = nx * r * radius;
+    const pz = nz * r * radius;
+    // Flatten into a flake; edges taper knife-thin like real cleavage.
+    let py = ny * r * radius * 0.07;
+    // Faint polished relief across the faces — enough to catch light.
+    py +=
+      radius *
+      0.012 *
+      Math.sin(px * 5.3 + seed * 1.9) *
+      Math.cos(pz * 4.6 + seed * 1.1);
+    py += radius * 0.006 * Math.sin(px * 11.7 + pz * 9.3 + seed * 2.7);
+
+    pos.setXYZ(i, px, py, pz);
   }
   geo.computeVertexNormals();
   return geo;
@@ -403,7 +453,7 @@ export function createBiotiteCore(container: HTMLElement): void {
     const t = (i + 0.5) / n;
     const radius = 2.0 * (0.58 + 0.42 * Math.sin(Math.PI * t));
     const seed = i * 13.7 + 3.1;
-    const geometry = createSheetGeometry(radius, seed);
+    const geometry = createSheetGeometry(radius, seed, highTier ? 3 : 2);
     const centered = i > 0 && i < n - 1;
     const baseY = (i - (n - 1) / 2) * 0.3;
     const material = new ShaderMaterial({
@@ -626,7 +676,7 @@ export function createBiotiteCore(container: HTMLElement): void {
 
     // Weighted rotation: slow autonomous drift + scroll + pointer parallax.
     core.rotation.y = elapsed * 0.05 + scrollProgress * 1.35 + pointerX * 0.12;
-    core.rotation.x = -0.16 + pointerY * 0.08 + scrollProgress * 0.22;
+    core.rotation.x = -0.34 + pointerY * 0.08 + scrollProgress * 0.22;
     core.rotation.z = Math.sin(elapsed * 0.07) * 0.02;
 
     // Gentle camera response with a breath of hand-held sway.

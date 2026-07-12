@@ -71,6 +71,7 @@ const homeServices = services.filter((s) => s.id !== "enablement");
 
   <!-- ======================= Positioning ========================= -->
   <section class="section wrap" data-section="positioning">
+    <span class="sec-mark t-mono" aria-hidden="true">Sec. 01 / 05</span>
     <div class="split">
       <p class="eyebrow" data-reveal>What we do</p>
       <div>
@@ -100,6 +101,7 @@ const homeServices = services.filter((s) => s.id !== "enablement");
 
   <!-- ======================== Selected work ======================= -->
   <section class="section section--hairline wrap" data-section="work">
+    <span class="sec-mark t-mono" aria-hidden="true">Sec. 02 / 05</span>
     <div class="section-head" data-reveal>
       <p class="eyebrow">Selected work</p>
       <h2 class="t-display t-2xl">Systems in service</h2>
@@ -121,6 +123,7 @@ const homeServices = services.filter((s) => s.id !== "enablement");
 
   <!-- ========================== Services ========================== -->
   <section class="section section--hairline wrap" data-section="services">
+    <span class="sec-mark t-mono" aria-hidden="true">Sec. 03 / 05</span>
     <div class="section-head" data-reveal>
       <p class="eyebrow">Capabilities</p>
       <h2 class="t-display t-2xl">What we build</h2>
@@ -154,6 +157,7 @@ const homeServices = services.filter((s) => s.id !== "enablement");
 
   <!-- =========================== Process =========================== -->
   <section class="section section--hairline wrap" data-section="process">
+    <span class="sec-mark t-mono" aria-hidden="true">Sec. 04 / 05</span>
     <div class="split">
       <div>
         <p class="eyebrow" data-reveal>How we work</p>
@@ -180,6 +184,7 @@ const homeServices = services.filter((s) => s.id !== "enablement");
 
   <!-- ============================ About ============================ -->
   <section class="section section--hairline wrap" data-section="about">
+    <span class="sec-mark t-mono" aria-hidden="true">Sec. 05 / 05</span>
     <div class="split">
       <p class="eyebrow" data-reveal>Point of view</p>
       <div>
@@ -355,6 +360,7 @@ const homeServices = services.filter((s) => s.id !== "enablement");
   }
 
   .hero__foot {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -403,6 +409,30 @@ const homeServices = services.filter((s) => s.id !== "enablement");
   }
 
   /* Sections */
+  .sec-mark {
+    position: absolute;
+    top: calc(var(--space-section) - 2.6rem);
+    right: var(--gutter);
+    color: var(--c-faint);
+    font-size: 0.6875rem;
+  }
+
+  .sec-mark::after {
+    content: "";
+    display: inline-block;
+    width: 0.65rem;
+    height: 1px;
+    background: var(--c-garnet-bright);
+    margin-left: 0.6rem;
+    vertical-align: middle;
+  }
+
+  @media (max-width: 48rem) {
+    .sec-mark {
+      display: none;
+    }
+  }
+
   .section-head {
     display: grid;
     gap: 1.25rem;
