@@ -1,0 +1,164 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../data/site";
+---
+
+<Base
+  title="About — Biotite Solutions"
+  description="Biotite Solutions is a custom AI systems studio founded by Joe Samara, building production AI systems for biotech, technology, and manufacturing companies."
+>
+  <section class="section wrap">
+    <header class="about-head">
+      <p class="eyebrow" data-reveal>About</p>
+      <h1 class="t-display t-2xl" data-reveal style="--reveal-delay:.06s">
+        Named after a mineral<br />that forms in <em>clean layers</em>
+      </h1>
+    </header>
+  </section>
+
+  <section class="section--hairline section wrap">
+    <div class="split">
+      <p class="eyebrow" data-reveal>The idea</p>
+      <div class="prose" data-reveal>
+        <p>
+          Biotite is a mica — a dark, unglamorous mineral whose defining
+          property is <strong>perfect cleavage</strong>: it splits naturally
+          into thin, distinct, orderly sheets.
+        </p>
+        <p>
+          That's the property we named the studio after, because it's what
+          good AI systems have and demos don't. A system you can rely on is
+          built in clean layers — data, retrieval, model behavior, agent
+          logic, integrations, interface — each engineered so it can be
+          inspected, evaluated, and improved on its own. When those layers
+          are fused into one clever prompt, you get something that works in a
+          meeting and fails in a workflow.
+        </p>
+        <p>
+          Biotite Solutions exists to build the first kind: complete,
+          production-oriented AI systems for businesses whose processes,
+          data, and software are too specific for off-the-shelf products.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--hairline section wrap">
+    <div class="split">
+      <p class="eyebrow" data-reveal>Principles</p>
+      <ul class="about-principles">
+        <li data-reveal>
+          <h2 class="t-lg">Production is the standard</h2>
+          <p>
+            A system counts when it runs inside your operation — integrated,
+            documented, and evaluated — not when it demos well. We build
+            toward that standard from the first week.
+          </p>
+        </li>
+        <li data-reveal>
+          <h2 class="t-lg">Judgment stays human</h2>
+          <p>
+            We decide deliberately what a system may do on its own and where
+            people review its work. Autonomy is an engineering decision with
+            an audit trail, never a default.
+          </p>
+        </li>
+        <li data-reveal>
+          <h2 class="t-lg">Measured, not asserted</h2>
+          <p>
+            Reliability claims come from evaluation against your real cases.
+            If we can't measure it yet, we say so and build the measurement.
+          </p>
+        </li>
+        <li data-reveal>
+          <h2 class="t-lg">Until the customer is satisfied</h2>
+          <p>
+            We're a young studio without a fashionable niche, and we treat
+            that honestly: our reputation is built one delivered system at a
+            time, so we keep working until yours does what we said it would.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section--hairline section wrap">
+    <div class="split">
+      <p class="eyebrow" data-reveal>Who you'll work with</p>
+      <div>
+        <div class="prose" data-reveal>
+          <p>
+            Biotite Solutions was founded by <strong>Joe Samara</strong>, an
+            engineer who has designed and delivered AI systems for biotech,
+            technology, and manufacturing companies: custom agents in
+            TypeScript and Python, image analysis pipelines with OpenCV,
+            retrieval-augmented knowledge systems, AI-assisted video
+            tagging, and executive decision-support dashboards integrated in
+            real time with systems like HiBob and Greenhouse.
+          </p>
+          <p>
+            When you engage Biotite, the person you meet on the first call is
+            the person who architects and builds your system.
+          </p>
+        </div>
+        <ul class="about-links" data-reveal>
+          <li>
+            <a href={site.social.linkedin} class="link-arrow" rel="noopener">
+              LinkedIn
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href={site.social.youtube} class="link-arrow" rel="noopener">
+              YouTube
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about-head {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .about-principles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2.25rem;
+  }
+
+  .about-principles li {
+    border-top: 1px solid var(--c-line);
+    padding-top: 1.4rem;
+  }
+
+  .about-principles li:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .about-principles p {
+    margin-top: 0.6rem;
+    color: var(--c-silver);
+    max-width: 36em;
+  }
+
+  .about-links {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    margin: 2rem 0 0;
+    padding: 0;
+  }
+</style>

@@ -1,0 +1,487 @@
+/* ==========================================================================
+   Biotite Solutions — global design system
+   Palette: Onyx #001200 · Pitch Black #191308 · Porcelain #FDFFFC
+            Silver #A3A3A3 · Dark Garnet #640000
+   ========================================================================== */
+
+:root {
+  /* Color tokens */
+  --c-bg: #050705;
+  --c-bg-raised: #0a0d0a;
+  --c-onyx: #001200;
+  --c-pitch: #191308;
+  --c-porcelain: #fdfffc;
+  --c-silver: #a3a3a3;
+  --c-faint: #6f746f;
+  --c-garnet: #640000;
+  --c-garnet-bright: #a33131;
+  --c-line: rgba(253, 255, 252, 0.09);
+  --c-line-strong: rgba(253, 255, 252, 0.2);
+
+  /* Typography */
+  --font-display: "Instrument Serif", "Times New Roman", serif;
+  --font-sans: "Instrument Sans Variable", "Instrument Sans", system-ui,
+    -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: clamp(1.15rem, 1rem + 0.6vw, 1.45rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.4vw, 2.4rem);
+  --text-2xl: clamp(2rem, 1.4rem + 2.8vw, 3.7rem);
+  --text-hero: clamp(2.6rem, 1.6rem + 5.2vw, 6rem);
+
+  /* Layout */
+  --page-max: 84rem;
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --space-section: clamp(6rem, 12vw, 11rem);
+  --space-block: clamp(2.5rem, 5vw, 4.5rem);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 0.55s;
+
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------------------------
+   Reset
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--c-bg);
+  color: var(--c-porcelain);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  font-weight: 420;
+  letter-spacing: 0.005em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--c-garnet);
+  color: var(--c-porcelain);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-porcelain);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Typography primitives
+   -------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 420;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.t-display em,
+.t-display i {
+  font-style: italic;
+  color: var(--c-silver);
+}
+
+.t-hero {
+  font-size: var(--text-hero);
+  line-height: 1.02;
+}
+
+.t-2xl {
+  font-size: var(--text-2xl);
+}
+
+.t-xl {
+  font-size: var(--text-xl);
+}
+
+.t-lg {
+  font-size: var(--text-lg);
+  line-height: 1.45;
+}
+
+.t-body {
+  color: var(--c-silver);
+  max-width: 38em;
+}
+
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Eyebrow: mono label with garnet tick */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-silver);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 1.5rem;
+  height: 1px;
+  background: var(--c-garnet-bright);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Layout
+   -------------------------------------------------------------------------- */
+
+.wrap {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--space-section);
+  position: relative;
+}
+
+.section--hairline {
+  border-top: 1px solid var(--c-line);
+}
+
+.section--tight {
+  padding-block: clamp(3.5rem, 7vw, 6rem);
+}
+
+/* Two-column editorial split: label rail + content */
+.split {
+  display: grid;
+  gap: var(--space-block);
+}
+
+@media (min-width: 60rem) {
+  .split {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: clamp(2rem, 6vw, 6rem);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Buttons & links
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.9rem 1.6rem;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-porcelain);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out);
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--c-porcelain);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.45s var(--ease-out);
+  z-index: 0;
+}
+
+.btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.btn span {
+  position: relative;
+  z-index: 1;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  color: var(--c-onyx);
+  border-color: var(--c-porcelain);
+}
+
+.btn:hover::before,
+.btn:focus-visible::before {
+  transform: scaleY(1);
+}
+
+.btn--solid {
+  background: var(--c-porcelain);
+  color: var(--c-onyx);
+  border-color: var(--c-porcelain);
+}
+
+.btn--solid::before {
+  background: var(--c-garnet);
+}
+
+.btn--solid:hover,
+.btn--solid:focus-visible {
+  color: var(--c-porcelain);
+  border-color: var(--c-garnet);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::before {
+    display: none;
+  }
+
+  .btn:hover,
+  .btn:focus-visible {
+    color: var(--c-porcelain);
+    background: var(--c-garnet);
+    border-color: var(--c-garnet);
+  }
+
+  .btn--solid:hover,
+  .btn--solid:focus-visible {
+    background: var(--c-garnet);
+  }
+}
+
+/* Arrow link */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-silver);
+  transition: color 0.3s var(--ease-out);
+}
+
+.link-arrow svg {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.link-arrow:hover,
+.link-arrow:focus-visible {
+  color: var(--c-porcelain);
+}
+
+.link-arrow:hover svg,
+.link-arrow:focus-visible svg {
+  transform: translateX(4px);
+}
+
+/* Inline text link */
+.link-inline {
+  color: var(--c-porcelain);
+  text-decoration: underline;
+  text-decoration-color: var(--c-garnet-bright);
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 0.3s;
+}
+
+.link-inline:hover {
+  text-decoration-color: var(--c-porcelain);
+}
+
+/* --------------------------------------------------------------------------
+   Reveal on scroll (progressive enhancement; content visible without JS)
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(1.75rem);
+    transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+
+  html.js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Shared components
+   -------------------------------------------------------------------------- */
+
+/* Tag chip */
+.tag {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--c-line);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-silver);
+  white-space: nowrap;
+}
+
+/* Hairline-boxed stat / fact */
+.fact {
+  border-top: 1px solid var(--c-line);
+  padding-top: 1.1rem;
+}
+
+.fact dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-faint);
+  margin-bottom: 0.5rem;
+}
+
+.fact dd {
+  margin: 0;
+  color: var(--c-porcelain);
+}
+
+/* Big index numeral */
+.numeral {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--c-garnet-bright);
+}
+
+/* Prose blocks for case studies / legal */
+.prose {
+  color: var(--c-silver);
+  max-width: 42em;
+}
+
+.prose p + p {
+  margin-top: 1.2em;
+}
+
+.prose h2,
+.prose h3 {
+  color: var(--c-porcelain);
+  margin: 2.2em 0 0.8em;
+}
+
+.prose ul {
+  padding-left: 1.2em;
+  margin: 1.2em 0;
+}
+
+.prose li + li {
+  margin-top: 0.5em;
+}
+
+.prose strong {
+  color: var(--c-porcelain);
+  font-weight: 550;
+}
+
+/* Skip link */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--c-porcelain);
+  color: var(--c-onyx);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Utility */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

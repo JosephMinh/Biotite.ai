@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://biotite.ai/sitemap.xml

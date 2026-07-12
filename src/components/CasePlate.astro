@@ -1,0 +1,200 @@
+---
+/**
+ * Abstract art-directed covers for case studies. Each variant is an original
+ * geometric motif drawn from the project's nature (strata = layered workforce
+ * data, flow = agent paths, lens = vision, lattice = retrieval graph,
+ * index = video timeline). Used until client screenshots are approved.
+ */
+interface Props {
+  variant: "strata" | "flow" | "lens" | "lattice" | "index";
+  class?: string;
+}
+const { variant, class: className } = Astro.props;
+
+const P = "#FDFFFC";
+const S = "#A3A3A3";
+const G = "#A33131";
+---
+
+<div class:list={["plate", className]} aria-hidden="true">
+  <svg viewBox="0 0 800 500" fill="none" preserveAspectRatio="xMidYMid slice">
+    <rect width="800" height="500" fill="url(#plate-bg)"></rect>
+    <defs>
+      <radialGradient id="plate-bg" cx="50%" cy="10%" r="120%">
+        <stop offset="0%" stop-color="#0c100c"></stop>
+        <stop offset="55%" stop-color="#070907"></stop>
+        <stop offset="100%" stop-color="#001200"></stop>
+      </radialGradient>
+    </defs>
+
+    {variant === "strata" && (
+      <g>
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <path
+            d={`M${140 + (i % 2) * 26} ${150 + i * 42} L${620 + (i % 3) * 14} ${118 + i * 42} l6 16 L${146 + (i % 2) * 26} ${198 + i * 42} Z`}
+            stroke={i === 2 ? G : S}
+            stroke-opacity={i === 2 ? 0.9 : 0.28 + 0.08 * (5 - i)}
+            stroke-width="1.1"
+            fill={i === 2 ? G : P}
+            fill-opacity={i === 2 ? 0.1 : 0.02}
+          />
+        ))}
+        <polyline
+          points="170,352 268,318 352,330 458,272 552,284 636,222"
+          stroke={P}
+          stroke-opacity="0.75"
+          stroke-width="1.4"
+        />
+        {[
+          [170, 352],
+          [268, 318],
+          [352, 330],
+          [458, 272],
+          [552, 284],
+          [636, 222],
+        ].map(([x, y], i) => (
+          <circle cx={x} cy={y} r="3.2" fill={i === 5 ? G : P} fill-opacity={i === 5 ? 1 : 0.85} />
+        ))}
+      </g>
+    )}
+
+    {variant === "flow" && (
+      <g>
+        <path
+          d="M110 250 H 300 M300 250 V 150 H 520 M300 250 V 350 H 460 M520 150 H 690 M460 350 H 690"
+          stroke={S}
+          stroke-opacity="0.4"
+          stroke-width="1.1"
+        />
+        <path d="M520 150 V 250 H 690" stroke={S} stroke-opacity="0.22" stroke-width="1.1" stroke-dasharray="3 6" />
+        {[
+          [110, 250, P, 1],
+          [300, 250, P, 1],
+          [520, 150, P, 1],
+          [460, 350, P, 1],
+          [690, 150, S, 0.9],
+          [690, 250, S, 0.55],
+          [690, 350, G, 1],
+        ].map(([x, y, c, o]) => (
+          <rect x={Number(x) - 7} y={Number(y) - 7} width="14" height="14" stroke={String(c)} stroke-opacity={Number(o)} stroke-width="1.2" fill="#050705" />
+        ))}
+        {[
+          [180, 250],
+          [382, 150],
+          [366, 350],
+          [604, 150],
+        ].map(([x, y]) => (
+          <circle cx={x} cy={y} r="2.4" fill={P} fill-opacity="0.9" />
+        ))}
+        <circle cx="560" cy="350" r="2.4" fill={G} />
+      </g>
+    )}
+
+    {variant === "lens" && (
+      <g>
+        <circle cx="400" cy="250" r="150" stroke={S} stroke-opacity="0.35" stroke-width="1.1" />
+        <circle cx="400" cy="250" r="104" stroke={S} stroke-opacity="0.5" stroke-width="1.1" />
+        <circle cx="400" cy="250" r="58" stroke={P} stroke-opacity="0.7" stroke-width="1.2" />
+        <path d="M400 250 m -150 0 a 150 150 0 0 1 88 -136" stroke={G} stroke-width="1.6" />
+        <path d="M400 60 V 130 M400 370 V 440 M210 250 H 250 M550 250 H 590" stroke={P} stroke-opacity="0.55" stroke-width="1.1" />
+        <path d="M130 250 H 160 M640 250 H 670" stroke={S} stroke-opacity="0.35" stroke-width="1.1" />
+        <circle cx="400" cy="250" r="3.5" fill={G} />
+        {[30, 60, 120, 150, 210, 240, 300, 330].map((a) => {
+          const r1 = 150;
+          const r2 = 158;
+          const rad = (a * Math.PI) / 180;
+          return (
+            <line
+              x1={400 + r1 * Math.cos(rad)}
+              y1={250 + r1 * Math.sin(rad)}
+              x2={400 + r2 * Math.cos(rad)}
+              y2={250 + r2 * Math.sin(rad)}
+              stroke={S}
+              stroke-opacity="0.5"
+              stroke-width="1.1"
+            />
+          );
+        })}
+      </g>
+    )}
+
+    {variant === "lattice" && (
+      <g>
+        {Array.from({ length: 5 }, (_, r) =>
+          Array.from({ length: 8 }, (_, c) => {
+            const x = 155 + c * 70;
+            const y = 110 + r * 70;
+            const key = `${r}-${c}`;
+            const active = ["1-2", "2-3", "1-4", "3-4", "2-5", "3-2"].includes(key);
+            return (
+              <circle
+                cx={x}
+                cy={y}
+                r={active ? 3.4 : 2}
+                fill={key === "2-3" ? G : P}
+                fill-opacity={active ? 0.95 : 0.22}
+              />
+            );
+          })
+        )}
+        <path
+          d="M295 180 L365 250 M365 250 L435 180 M435 180 L435 320 M435 320 L295 320 M365 250 L505 250"
+          stroke={P}
+          stroke-opacity="0.55"
+          stroke-width="1.1"
+        />
+        <path d="M365 250 L295 180" stroke={G} stroke-opacity="0.9" stroke-width="1.3" />
+        <rect x="560" y="130" width="110" height="140" stroke={S} stroke-opacity="0.4" stroke-width="1.1" />
+        <path d="M578 160 h74 M578 184 h74 M578 208 h50" stroke={S} stroke-opacity="0.45" stroke-width="1.1" />
+        <path d="M578 236 h62" stroke={G} stroke-width="1.3" />
+      </g>
+    )}
+
+    {variant === "index" && (
+      <g>
+        <rect x="130" y="140" width="540" height="88" stroke={S} stroke-opacity="0.4" stroke-width="1.1" />
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <line
+            x1={130 + (i + 1) * 54}
+            y1="140"
+            x2={130 + (i + 1) * 54}
+            y2="228"
+            stroke={S}
+            stroke-opacity="0.25"
+            stroke-width="1"
+          />
+        ))}
+        <rect x="346" y="140" width="54" height="88" fill={G} fill-opacity="0.28" stroke={G} stroke-width="1.2" />
+        <line x1="130" y1="268" x2="670" y2="268" stroke={P} stroke-opacity="0.4" stroke-width="1.1" />
+        {[168, 236, 312, 373, 444, 508, 561, 628].map((x, i) => (
+          <line x1={x} y1="262" x2={x} y2="274" stroke={i === 3 ? G : P} stroke-opacity={i === 3 ? 1 : 0.6} stroke-width="1.3" />
+        ))}
+        {[
+          [150, 310, 78],
+          [246, 310, 96],
+          [360, 310, 64],
+          [442, 310, 108],
+        ].map(([x, y, w]) => (
+          <rect x={x} y={y} width={w} height="26" rx="13" stroke={S} stroke-opacity="0.5" stroke-width="1.1" />
+        ))}
+        <rect x="568" y="310" width="84" height="26" rx="13" stroke={G} stroke-width="1.2" />
+      </g>
+    )}
+  </svg>
+</div>
+
+<style>
+  .plate {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--c-line);
+    border-radius: 3px;
+    background: var(--c-bg-raised);
+  }
+
+  .plate svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>

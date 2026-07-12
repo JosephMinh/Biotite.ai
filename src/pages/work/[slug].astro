@@ -1,0 +1,202 @@
+---
+import Base from "../../layouts/Base.astro";
+import CasePlate from "../../components/CasePlate.astro";
+import { caseStudies } from "../../data/caseStudies";
+import { site } from "../../data/site";
+
+export function getStaticPaths() {
+  return caseStudies.map((study) => ({
+    params: { slug: study.slug },
+    props: { study },
+  }));
+}
+
+const { study } = Astro.props;
+
+const related =
+  caseStudies.find(
+    (c) => c.slug !== study.slug && c.industry === study.industry
+  ) ?? caseStudies.find((c) => c.slug !== study.slug)!;
+
+const sections = [
+  { id: "challenge", label: "The problem", paras: study.challenge },
+  { id: "approach", label: "Biotite's approach", paras: study.approach },
+  { id: "solution", label: "The system", paras: study.solution },
+  { id: "outcomes", label: "What changed", paras: study.outcomes },
+];
+---
+
+<Base
+  title={`${study.title} — Biotite Solutions`}
+  description={study.shortSummary}
+>
+  <article>
+    <header class="section wrap case-head">
+      <p class="case-head__crumbs t-mono" data-reveal>
+        <a href="/work/" class="case-head__crumb-link">Work</a>
+        <span aria-hidden="true">/</span>
+        <span>{study.industry}</span>
+      </p>
+      <h1 class="t-display t-2xl case-head__title" data-reveal style="--reveal-delay:.06s">
+        {study.title}
+      </h1>
+      <p class="t-lg t-body case-head__summary" data-reveal style="--reveal-delay:.12s">
+        {study.shortSummary}
+      </p>
+
+      <div class="case-head__plate" data-reveal style="--reveal-delay:.18s">
+        <CasePlate variant={study.plate} />
+      </div>
+
+      <dl class="case-facts" data-reveal>
+        <div class="fact">
+          <dt>Client</dt>
+          <dd>{study.anonymizedClientName}</dd>
+        </div>
+        <div class="fact">
+          <dt>Industry</dt>
+          <dd>{study.industry}</dd>
+        </div>
+        <div class="fact">
+          <dt>Services</dt>
+          <dd>{study.services.join(", ")}</dd>
+        </div>
+        <div class="fact">
+          <dt>Technologies</dt>
+          <dd>{study.technologies.join(", ")}</dd>
+        </div>
+      </dl>
+    </header>
+
+    {sections.map((section, i) => (
+      <section
+        class:list={["section", "section--tight", "section--hairline", "wrap"]}
+        aria-labelledby={section.id}
+      >
+        <div class="split">
+          <div>
+            <p class="numeral" data-reveal>{String(i + 1).padStart(2, "0")}</p>
+            <h2 class="t-display t-xl case-section__title" id={section.id} data-reveal>
+              {section.label}
+            </h2>
+          </div>
+          <div class="prose" data-reveal>
+            {section.paras.map((p) => <p>{p}</p>)}
+          </div>
+        </div>
+      </section>
+    ))}
+
+    <section class="section section--hairline wrap">
+      <p class="eyebrow" data-reveal>Related work</p>
+      <a href={`/work/${related.slug}/`} class="related" data-reveal>
+        <h2 class="t-display t-xl">{related.title}</h2>
+        <span class="link-arrow">
+          Read the case study
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+        </span>
+      </a>
+    </section>
+
+    <section class="section section--hairline wrap case-cta">
+      <h2 class="t-display t-xl" data-reveal>
+        Facing something similar?
+      </h2>
+      <p class="t-body" data-reveal>
+        A thirty-minute call is enough to tell whether we can help — and we'll
+        say so either way.
+      </p>
+      <a href={site.calendly} class="btn btn--solid" rel="noopener" data-reveal>
+        <span>Book an intro call</span>
+      </a>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .case-head {
+    display: grid;
+    gap: 1.5rem;
+    padding-bottom: var(--space-block);
+  }
+
+  .case-head__crumbs {
+    display: flex;
+    gap: 0.75rem;
+    color: var(--c-faint);
+  }
+
+  .case-head__crumb-link {
+    color: var(--c-silver);
+    transition: color 0.3s;
+  }
+
+  .case-head__crumb-link:hover {
+    color: var(--c-porcelain);
+  }
+
+  .case-head__title {
+    max-width: 18em;
+  }
+
+  .case-head__summary {
+    max-width: 34em;
+  }
+
+  .case-head__plate {
+    margin-top: 1.5rem;
+  }
+
+  .case-head__plate :global(.plate) {
+    aspect-ratio: 16 / 7;
+  }
+
+  .case-head__plate :global(svg) {
+    height: 100%;
+  }
+
+  .case-facts {
+    display: grid;
+    gap: 1.75rem;
+    margin: 1.5rem 0 0;
+  }
+
+  @media (min-width: 48rem) {
+    .case-facts {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  .case-section__title {
+    margin-top: 0.75rem;
+  }
+
+  .related {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+    margin-top: 1.5rem;
+    max-width: 40rem;
+  }
+
+  .related h2 {
+    transition: color 0.3s;
+  }
+
+  .related:hover h2 {
+    color: var(--c-silver);
+  }
+
+  .case-cta {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+  }
+
+  .case-cta .t-body {
+    max-width: 32em;
+  }
+</style>

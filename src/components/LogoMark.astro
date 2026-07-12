@@ -1,0 +1,22 @@
+---
+// Biotite mark: three cleaved mineral sheets with a garnet fragment.
+interface Props {
+  size?: number;
+}
+const { size = 26 } = Astro.props;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 32 32"
+  fill="none"
+  aria-hidden="true"
+>
+  <path d="M5 10 L25 5.5 L26.8 10.3 L6.8 14.8 Z" fill="#FDFFFC"></path>
+  <path d="M4 17 L24 12.5 L25.8 17.3 L5.8 21.8 Z" fill="#A3A3A3" opacity="0.8"
+  ></path>
+  <path d="M27 11.9 L30.2 11.2 L31.2 13.9 L28 14.6 Z" fill="#A33131"></path>
+  <path d="M5.2 24 L25.2 19.5 L27 24.3 L7 28.8 Z" fill="#FDFFFC" opacity="0.32"
+  ></path>
+</svg>

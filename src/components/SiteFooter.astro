@@ -1,0 +1,169 @@
+---
+import LogoMark from "./LogoMark.astro";
+import { nav, site } from "../data/site";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__cta">
+      <p class="eyebrow">Start a conversation</p>
+      <h2 class="t-display t-2xl site-footer__headline">
+        Bring us the workflow<br />that <em>shouldn't</em> still be manual.
+      </h2>
+      <div class="site-footer__actions">
+        <a href={site.calendly} class="btn btn--solid" rel="noopener">
+          <span>Book an intro call</span>
+        </a>
+        <a href="/contact/" class="link-arrow">
+          Other ways to reach us
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <a href="/" class="site-footer__brand-link" aria-label="Biotite Solutions — home">
+          <LogoMark size={24} />
+          <span>Biotite Solutions</span>
+        </a>
+        <p class="site-footer__desc">
+          A custom AI systems studio. We build agents, knowledge systems,
+          vision pipelines, and decision-support applications that hold up in
+          production.
+        </p>
+      </div>
+
+      <nav aria-label="Footer">
+        <h3 class="t-mono site-footer__col-title">Site</h3>
+        <ul class="site-footer__list">
+          <li><a href="/">Home</a></li>
+          {nav.map((item) => (
+            <li><a href={item.href}>{item.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <div>
+        <h3 class="t-mono site-footer__col-title">Elsewhere</h3>
+        <ul class="site-footer__list">
+          <li><a href={site.social.linkedin} rel="noopener">LinkedIn</a></li>
+          <li><a href={site.social.youtube} rel="noopener">YouTube</a></li>
+          <li><a href={site.calendly} rel="noopener">Calendly</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="site-footer__legal">
+      <p>© {year} Biotite Solutions · biotite.ai</p>
+      <a href="/privacy/">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--c-line);
+    background:
+      radial-gradient(120% 90% at 50% 115%, rgba(100, 0, 0, 0.16), transparent 60%),
+      linear-gradient(180deg, var(--c-bg), var(--c-onyx));
+    padding-block: var(--space-section) 2.5rem;
+    margin-top: var(--space-section);
+  }
+
+  .site-footer__cta {
+    display: grid;
+    gap: 1.5rem;
+    justify-items: start;
+    padding-bottom: var(--space-block);
+    border-bottom: 1px solid var(--c-line);
+    margin-bottom: var(--space-block);
+  }
+
+  .site-footer__headline {
+    max-width: 16em;
+  }
+
+  .site-footer__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: 2.5rem;
+    padding-bottom: var(--space-block);
+  }
+
+  @media (min-width: 48rem) {
+    .site-footer__grid {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(2rem, 6vw, 6rem);
+    }
+  }
+
+  .site-footer__brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-weight: 550;
+  }
+
+  .site-footer__desc {
+    margin-top: 1rem;
+    color: var(--c-silver);
+    font-size: var(--text-sm);
+    max-width: 32em;
+  }
+
+  .site-footer__col-title {
+    color: var(--c-faint);
+    margin-bottom: 1.1rem;
+  }
+
+  .site-footer__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .site-footer__list a {
+    color: var(--c-silver);
+    font-size: var(--text-sm);
+    transition: color 0.3s;
+  }
+
+  .site-footer__list a:hover,
+  .site-footer__list a:focus-visible {
+    color: var(--c-porcelain);
+  }
+
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--c-line);
+    padding-top: 1.5rem;
+    color: var(--c-faint);
+    font-size: var(--text-sm);
+  }
+
+  .site-footer__legal a {
+    color: var(--c-faint);
+    transition: color 0.3s;
+  }
+
+  .site-footer__legal a:hover {
+    color: var(--c-porcelain);
+  }
+</style>

@@ -1,0 +1,42 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base
+  title="Page not found — Biotite Solutions"
+  description="The page you were looking for doesn't exist."
+>
+  <section class="section wrap nf">
+    <p class="eyebrow">404</p>
+    <h1 class="t-display t-hero">This layer<br /><em>doesn't exist.</em></h1>
+    <p class="t-body t-lg nf__sub">
+      The page you're looking for has cleaved off. Everything real is one
+      level up.
+    </p>
+    <div class="nf__actions">
+      <a href="/" class="btn btn--solid"><span>Back to home</span></a>
+      <a href="/work/" class="btn"><span>See the work</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: 60vh;
+    display: grid;
+    gap: 1.5rem;
+    align-content: center;
+    justify-items: start;
+  }
+
+  .nf__sub {
+    max-width: 28em;
+  }
+
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+</style>

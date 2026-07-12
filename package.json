@@ -1,0 +1,24 @@
+{
+  "name": "biotite-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Biotite Solutions — custom AI systems studio website",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fontsource-variable/instrument-sans": "^5.2.5",
+    "@fontsource/ibm-plex-mono": "^5.2.5",
+    "@fontsource/instrument-serif": "^5.2.5",
+    "astro": "^5.12.0",
+    "three": "^0.178.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.178.0",
+    "vitest": "^3.2.0"
+  }
+}
