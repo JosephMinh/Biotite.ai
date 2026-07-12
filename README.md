@@ -75,6 +75,15 @@ screenshots are approved for publication.
 - `src/scripts/experience.ts` — loader; skips entirely (leaving a static
   SVG poster) when the visitor prefers reduced motion, has data-saver on,
   or lacks WebGL. Three.js is only downloaded when it will be used.
+- **Opening fly-through**: the homepage begins with the artifact alone at
+  full screen; scrolling carries the camera toward the stack, the layers
+  cleave open into a corridor, the camera passes between them, and a
+  masked cut hands over to the standard hero where the artifact re-forms.
+  The intro stage (`[data-intro]`, 240svh) is hidden unless the WebGL
+  scene mounts while the visitor is at the top of the page — reduced
+  motion, no-JS, no-WebGL, and mid-page loads all land directly on the
+  hero. Choreography lives in `introChoreography()` (`motion.ts`), fully
+  unit-tested.
 - `src/webgl/core.ts` — scene: layered sheet geometry with flat-facet
   shading via screen-space derivatives, per-facet tonal variation, fresnel
   silver edges with a faint spectral sheen; a molten garnet "heart" and

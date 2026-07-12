@@ -3,6 +3,7 @@ import {
   canvasOpacity,
   clamp01,
   damp,
+  introChoreography,
   layerSeparation,
   pickQuality,
 } from "../src/scripts/motion";
@@ -59,6 +60,63 @@ describe("canvasOpacity", () => {
     const dimmed = canvasOpacity(5000, 900);
     expect(dimmed).toBeGreaterThan(0.2);
     expect(dimmed).toBeLessThan(0.4);
+  });
+});
+
+describe("introChoreography", () => {
+  it("starts held on the full artifact: camera far, layers closed", () => {
+    const s = introChoreography(0);
+    expect(s.cameraZ).toBe(11);
+    expect(s.separation).toBeLessThan(0.1);
+    expect(s.presence).toBe(1);
+    expect(s.passed).toBe(false);
+  });
+
+  it("moves the camera monotonically forward through the stack", () => {
+    let prev = Infinity;
+    for (let p = 0; p <= 1.001; p += 0.05) {
+      const z = introChoreography(p).cameraZ;
+      expect(z).toBeLessThanOrEqual(prev + 1e-9);
+      prev = z;
+    }
+  });
+
+  it("opens the corridor before the camera reaches the layers", () => {
+    // The flakes extend to roughly z ≈ +4.5 at intro scale; by the time the
+    // camera crosses that front edge the stack must already be opening.
+    const atFront = introChoreography(0.45);
+    expect(atFront.cameraZ).toBeLessThan(5.5);
+    expect(atFront.separation).toBeGreaterThan(0.8);
+    // Fully open while the camera is inside the stack.
+    const inside = introChoreography(0.62);
+    expect(inside.separation).toBeGreaterThan(2.5);
+    expect(Math.abs(inside.cameraZ)).toBeLessThan(4.5);
+  });
+
+  it("ducks the molten heart during the pass-through", () => {
+    expect(introChoreography(0.7).heartIntensity).toBeLessThan(
+      introChoreography(0).heartIntensity
+    );
+  });
+
+  it("masks the exit cut with a presence dip, then recovers", () => {
+    expect(introChoreography(0.75).presence).toBeLessThan(0.2);
+    expect(introChoreography(1).presence).toBe(1);
+  });
+
+  it("cuts while the camera is still inside the stack", () => {
+    const atCut = introChoreography(0.755);
+    expect(atCut.cameraZ).toBeGreaterThan(-4.4);
+    expect(atCut.cameraZ).toBeLessThan(0);
+  });
+
+  it("hands over to the main site after the cut", () => {
+    expect(introChoreography(0.74).passed).toBe(false);
+    expect(introChoreography(0.78).passed).toBe(true);
+  });
+
+  it("ends behind the stack, ready for the emergence", () => {
+    expect(introChoreography(1).cameraZ).toBeLessThan(-4);
   });
 });
 

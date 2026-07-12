@@ -36,8 +36,10 @@ import {
   canvasOpacity,
   clamp01,
   damp,
+  introChoreography,
   layerSeparation,
   pickQuality,
+  smooth01,
 } from "../scripts/motion";
 
 /* ----------------------------- shaders --------------------------------- */
@@ -589,12 +591,29 @@ export function createBiotiteCore(container: HTMLElement): void {
   container.appendChild(renderer.domElement);
   container.querySelector("[data-poster]")?.remove();
 
+  /* Opening fly-through: enable the intro scroll stage only when WebGL is
+     live and the visitor is still at the top of the page (a mid-page load
+     must not have 240vh inserted above it). */
+  const introEl = document.querySelector<HTMLElement>("[data-intro]");
+  let introEnd = 0;
+  const measureIntro = () => {
+    introEnd = introEl
+      ? Math.max(introEl.offsetHeight - window.innerHeight, 0)
+      : 0;
+  };
+  if (introEl && window.scrollY < window.innerHeight * 0.5) {
+    document.documentElement.classList.add("has-core");
+    measureIntro();
+  }
+  const introCue = introEl?.querySelector<HTMLElement>(".intro__cue") ?? null;
+
   /* Input state */
   let pointerX = 0;
   let pointerY = 0;
   let pointerTX = 0;
   let pointerTY = 0;
   let scrollProgress = 0;
+  let introProgress = 1;
   let heroOpacity = 1;
   let running = true;
 
@@ -605,9 +624,17 @@ export function createBiotiteCore(container: HTMLElement): void {
 
   const onScroll = () => {
     const doc = document.documentElement;
-    const max = Math.max(doc.scrollHeight - window.innerHeight, 1);
-    scrollProgress = clamp01(window.scrollY / max);
-    heroOpacity = canvasOpacity(window.scrollY, window.innerHeight);
+    introProgress = introEnd > 0 ? clamp01(window.scrollY / introEnd) : 1;
+    const mainScroll = Math.max(0, window.scrollY - introEnd);
+    const max = Math.max(
+      doc.scrollHeight - window.innerHeight - introEnd,
+      1
+    );
+    scrollProgress = clamp01(mainScroll / max);
+    heroOpacity = canvasOpacity(mainScroll, window.innerHeight);
+    if (introCue) {
+      introCue.style.opacity = String(1 - smooth01(0.03, 0.1, introProgress));
+    }
   };
 
   const onResize = () => {
@@ -618,6 +645,7 @@ export function createBiotiteCore(container: HTMLElement): void {
     atmoMat.uniforms.uAspect!.value = window.innerWidth / window.innerHeight;
     isNarrow = window.innerWidth < 960;
     placeCore();
+    measureIntro();
     onScroll();
   };
 
@@ -644,22 +672,26 @@ export function createBiotiteCore(container: HTMLElement): void {
     last = now;
     const elapsed = (now - start) / 1000;
 
-    // Intro: sheets assemble from an opened state over the first ~1.8s.
-    const intro = clamp01(elapsed / 1.8);
-    const introEase = 1 - Math.pow(1 - intro, 3);
+    // Load-in: sheets assemble from an opened state over the first ~1.8s.
+    const assemble = 1 - Math.pow(1 - clamp01(elapsed / 1.8), 3);
 
     // Damped pointer.
     pointerX = damp(pointerX, pointerTX, 3.2, dt);
     pointerY = damp(pointerY, pointerTY, 3.2, dt);
 
-    // Interior energy: swells through the middle of the page.
-    const energy = Math.pow(
-      Math.sin(Math.PI * clamp01(scrollProgress * 1.1)),
-      2
-    );
+    const fly = introChoreography(introProgress);
+    const inIntro = !fly.passed;
 
-    // Sheet separation: scroll narrative + intro assembly.
-    const sep = layerSeparation(scrollProgress) + (1 - introEase) * 2.4;
+    // Interior energy: corridor glow during the fly-through, then swells
+    // through the middle of the page.
+    const energy = inIntro
+      ? smooth01(0.3, 0.7, introProgress) * 0.65
+      : Math.pow(Math.sin(Math.PI * clamp01(scrollProgress * 1.1)), 2);
+
+    // Sheet separation: fly-through corridor or scroll narrative.
+    const sep =
+      (inIntro ? fly.separation : layerSeparation(scrollProgress)) +
+      (1 - assemble) * 2.4;
     for (const s of sheets) {
       s.mesh.position.y = s.baseY * (1 + sep);
       s.mesh.position.x = s.baseX * (1 + sep * 0.5);
@@ -671,46 +703,75 @@ export function createBiotiteCore(container: HTMLElement): void {
       }
     }
 
+    const swayX =
+      Math.sin(elapsed * 0.23) * 0.04 + Math.sin(elapsed * 0.71) * 0.015;
+    const swayY = Math.cos(elapsed * 0.19) * 0.03;
+
+    if (inIntro) {
+      // Full-screen artifact, centered; camera dives through the corridor.
+      core.position.set(0, 0, 0);
+      core.scale.setScalar(isNarrow ? 1.0 : 1.5);
+      core.rotation.y = elapsed * 0.04 + introProgress * 0.5 + pointerX * 0.05;
+      core.rotation.x = -0.06 + pointerY * 0.03;
+      core.rotation.z = Math.sin(elapsed * 0.07) * 0.015;
+
+      camera.position.set(
+        pointerX * 0.2 + swayX * 0.5,
+        fly.cameraY - pointerY * 0.08 + swayY * 0.5,
+        fly.cameraZ
+      );
+      camera.lookAt(pointerX * 0.4, fly.cameraY * 0.5, fly.cameraZ - 10);
+
+      // Keep the heart small and ducked so the corridor reads as embers
+      // and edge-light, not a red wall.
+      heartMat.uniforms.uIntensity!.value = fly.heartIntensity;
+      heart.scale.set(1.2, 0.45, 1.2);
+      haloMat.uniforms.uIntensity!.value = fly.heartIntensity * 0.3;
+
+      atmoMat.uniforms.uEmber!.value.set(0, -0.1);
+      atmoMat.uniforms.uEmberI!.value = 0.5 + energy * 0.4;
+    } else {
+      // Standard site composition.
+      placeCore();
+      core.rotation.y =
+        elapsed * 0.05 + scrollProgress * 1.35 + pointerX * 0.12;
+      core.rotation.x = -0.34 + pointerY * 0.08 + scrollProgress * 0.22;
+      core.rotation.z = Math.sin(elapsed * 0.07) * 0.02;
+
+      camera.position.x = pointerX * 0.25 + swayX;
+      camera.position.y = 0.4 - pointerY * 0.18 + swayY;
+      camera.position.z = 11 + scrollProgress * 1.6;
+      camera.lookAt(core.position.x * 0.6, core.position.y * 0.5, 0);
+
+      heartMat.uniforms.uIntensity!.value = 0.6 + energy * 0.75 + sep * 0.12;
+      heart.scale.set(1.35 + sep * 0.1, 0.62 + sep * 0.5, 1.35 + sep * 0.1);
+      haloMat.uniforms.uIntensity!.value = 0.17 + energy * 0.3;
+
+      emberProj.copy(core.position).project(camera);
+      atmoMat.uniforms.uEmber!.value.set(emberProj.x, emberProj.y);
+      atmoMat.uniforms.uEmberI!.value = 0.68 + energy * 0.7;
+    }
+
     heartMat.uniforms.uTime!.value = elapsed;
-    heartMat.uniforms.uIntensity!.value = 0.6 + energy * 0.75 + sep * 0.12;
-    heart.scale.set(1.35 + sep * 0.1, 0.62 + sep * 0.5, 1.35 + sep * 0.1);
-    haloMat.uniforms.uIntensity!.value = 0.17 + energy * 0.3;
     halo.position.set(core.position.x, core.position.y, core.position.z - 1.6);
     halo.quaternion.copy(camera.quaternion);
     halo.scale.setScalar(core.scale.x);
 
-    // Weighted rotation: slow autonomous drift + scroll + pointer parallax.
-    core.rotation.y = elapsed * 0.05 + scrollProgress * 1.35 + pointerX * 0.12;
-    core.rotation.x = -0.34 + pointerY * 0.08 + scrollProgress * 0.22;
-    core.rotation.z = Math.sin(elapsed * 0.07) * 0.02;
-
-    // Gentle camera response with a breath of hand-held sway.
-    const swayX = Math.sin(elapsed * 0.23) * 0.04 + Math.sin(elapsed * 0.71) * 0.015;
-    const swayY = Math.cos(elapsed * 0.19) * 0.03;
-    camera.position.x = pointerX * 0.25 + swayX;
-    camera.position.y = 0.4 - pointerY * 0.18 + swayY;
-    camera.position.z = 11 + scrollProgress * 1.6;
-    camera.lookAt(core.position.x * 0.6, core.position.y * 0.5, 0);
-
     // Starfield counter-parallax (it lives outside the core group).
     starfield.points.rotation.y = -pointerX * 0.02 - scrollProgress * 0.12;
 
-    // Atmosphere follows the core and swells with its energy.
-    emberProj.copy(core.position).project(camera);
-    atmoMat.uniforms.uEmber!.value.set(emberProj.x, emberProj.y);
-    atmoMat.uniforms.uEmberI!.value = 0.68 + energy * 0.7;
     atmoMat.uniforms.uTime!.value = elapsed;
-
     dust.material.uniforms.uTime!.value = elapsed;
     embers.material.uniforms.uTime!.value = elapsed;
     embers.material.uniforms.uAlpha!.value = 0.35 + energy * 0.55;
     starfield.material.uniforms.uTime!.value = elapsed;
 
-    // Narrow layouts put the core behind the hero copy, so keep it dimmer.
-    const presence = isNarrow ? 0.55 : 1;
-    renderer.domElement.style.opacity = String(
-      heroOpacity * introEase * presence
-    );
+    // Narrow layouts put the core behind the hero copy, so keep it dimmer
+    // once the fly-through has handed over to the site.
+    const presence = inIntro
+      ? fly.presence
+      : heroOpacity * (isNarrow ? 0.55 : 1) * fly.presence;
+    renderer.domElement.style.opacity = String(presence * assemble);
 
     if (composer) {
       composer.render();

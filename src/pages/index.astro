@@ -44,6 +44,17 @@ const homeServices = services.filter((s) => s.id !== "enablement");
     ))}
   </div>
 
+  <!-- ===================== Opening fly-through ====================
+       Pure scroll stage for the WebGL intro: the artifact alone, full
+       screen; scrolling carries the camera through the cleaved layers
+       into the site. Hidden entirely unless the WebGL core is running
+       (html.has-core is set by the scene on successful mount), so
+       reduced-motion, no-JS, and no-WebGL visitors land directly on
+       the hero. -->
+  <div class="intro" data-intro aria-hidden="true">
+    <p class="intro__cue t-mono">Scroll</p>
+  </div>
+
   <!-- ============================ Hero ============================ -->
   <section class="hero wrap" data-section="hero">
     <div class="hero__content">
@@ -327,6 +338,61 @@ const homeServices = services.filter((s) => s.id !== "enablement");
       margin-left: 0;
       margin-top: -30vh;
       opacity: 0.4;
+    }
+  }
+
+  /* Opening fly-through stage */
+  .intro {
+    display: none;
+  }
+
+  :global(html.has-core) .intro {
+    display: block;
+    height: 240vh;
+    height: 240svh;
+    position: relative;
+  }
+
+  .intro__cue {
+    position: absolute;
+    top: calc(100svh - 4.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--c-silver);
+    letter-spacing: 0.3em;
+  }
+
+  .intro__cue::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 0.9rem);
+    width: 1px;
+    height: 2.2rem;
+    background: linear-gradient(180deg, var(--c-garnet-bright), transparent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .intro__cue::after {
+      animation: cue-drop 2.2s var(--ease-out) infinite;
+    }
+
+    @keyframes cue-drop {
+      0% {
+        transform: scaleY(0.2);
+        transform-origin: top;
+        opacity: 0;
+      }
+
+      45% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scaleY(1);
+        opacity: 0;
+      }
     }
   }
 
