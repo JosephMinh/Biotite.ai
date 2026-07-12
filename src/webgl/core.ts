@@ -135,6 +135,10 @@ const sheetFragment = /* glsl */ `
     col += vec3(0.86, 0.20, 0.07)
       * pow(align, 80.0) * step(0.9, hv.z) * interior * 1.2;
 
+    // Contrast grade: crush the body toward true black to counteract the
+    // sRGB output lift; highlights (glints, edges) pass through untouched.
+    col = pow(col, vec3(1.45));
+
     gl_FragColor = vec4(col, 1.0);
   }
 `;
@@ -574,9 +578,9 @@ export function createBiotiteCore(container: HTMLElement): void {
     composer.addPass(new RenderPass(scene, camera));
     const bloom = new UnrealBloomPass(
       new Vector2(window.innerWidth, window.innerHeight),
-      0.38,
-      0.7,
-      0.82
+      0.3,
+      0.4,
+      0.85
     );
     composer.addPass(bloom);
   }
