@@ -2,7 +2,7 @@
 
 <INSTRUCTIONS>
 ## Project
-- Name: Biotite.ai
+- Name: Biotite_Website
 - Language: Generic
 - Generated: 2026-07-12T04:47:55Z
 
