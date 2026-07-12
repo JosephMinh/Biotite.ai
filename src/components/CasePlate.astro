@@ -18,14 +18,27 @@ const G = "#A33131";
 
 <div class:list={["plate", className]} aria-hidden="true">
   <svg viewBox="0 0 800 500" fill="none" preserveAspectRatio="xMidYMid slice">
-    <rect width="800" height="500" fill="url(#plate-bg)"></rect>
     <defs>
       <radialGradient id="plate-bg" cx="50%" cy="10%" r="120%">
         <stop offset="0%" stop-color="#0c100c"></stop>
         <stop offset="55%" stop-color="#070907"></stop>
         <stop offset="100%" stop-color="#001200"></stop>
       </radialGradient>
+      <radialGradient id="plate-ember" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#5a1004" stop-opacity="0.5"></stop>
+        <stop offset="60%" stop-color="#3a0800" stop-opacity="0.16"></stop>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0"></stop>
+      </radialGradient>
+      <filter id="plate-glow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="7" result="b"></feGaussianBlur>
+        <feMerge>
+          <feMergeNode in="b"></feMergeNode>
+          <feMergeNode in="SourceGraphic"></feMergeNode>
+        </feMerge>
+      </filter>
     </defs>
+    <rect width="800" height="500" fill="url(#plate-bg)"></rect>
+    <ellipse cx="470" cy="290" rx="380" ry="240" fill="url(#plate-ember)"></ellipse>
 
     {variant === "strata" && (
       <g>
@@ -53,7 +66,7 @@ const G = "#A33131";
           [552, 284],
           [636, 222],
         ].map(([x, y], i) => (
-          <circle cx={x} cy={y} r="3.2" fill={i === 5 ? G : P} fill-opacity={i === 5 ? 1 : 0.85} />
+          <circle cx={x} cy={y} r="3.2" fill={i === 5 ? G : P} fill-opacity={i === 5 ? 1 : 0.85} filter={i === 5 ? "url(#plate-glow)" : undefined} />
         ))}
       </g>
     )}
@@ -76,7 +89,7 @@ const G = "#A33131";
           [690, 250, S, 0.55],
           [690, 350, G, 1],
         ].map(([x, y, c, o]) => (
-          <rect x={Number(x) - 7} y={Number(y) - 7} width="14" height="14" stroke={String(c)} stroke-opacity={Number(o)} stroke-width="1.2" fill="#050705" />
+          <rect x={Number(x) - 7} y={Number(y) - 7} width="14" height="14" stroke={String(c)} stroke-opacity={Number(o)} stroke-width="1.2" fill="#050705" filter={c === G ? "url(#plate-glow)" : undefined} />
         ))}
         {[
           [180, 250],
@@ -98,7 +111,7 @@ const G = "#A33131";
         <path d="M400 250 m -150 0 a 150 150 0 0 1 88 -136" stroke={G} stroke-width="1.6" />
         <path d="M400 60 V 130 M400 370 V 440 M210 250 H 250 M550 250 H 590" stroke={P} stroke-opacity="0.55" stroke-width="1.1" />
         <path d="M130 250 H 160 M640 250 H 670" stroke={S} stroke-opacity="0.35" stroke-width="1.1" />
-        <circle cx="400" cy="250" r="3.5" fill={G} />
+        <circle cx="400" cy="250" r="3.5" fill={G} filter="url(#plate-glow)" />
         {[30, 60, 120, 150, 210, 240, 300, 330].map((a) => {
           const r1 = 150;
           const r2 = 158;
@@ -143,7 +156,7 @@ const G = "#A33131";
           stroke-opacity="0.55"
           stroke-width="1.1"
         />
-        <path d="M365 250 L295 180" stroke={G} stroke-opacity="0.9" stroke-width="1.3" />
+        <path d="M365 250 L295 180" stroke={G} stroke-opacity="0.9" stroke-width="1.3" filter="url(#plate-glow)" />
         <rect x="560" y="130" width="110" height="140" stroke={S} stroke-opacity="0.4" stroke-width="1.1" />
         <path d="M578 160 h74 M578 184 h74 M578 208 h50" stroke={S} stroke-opacity="0.45" stroke-width="1.1" />
         <path d="M578 236 h62" stroke={G} stroke-width="1.3" />
@@ -164,7 +177,7 @@ const G = "#A33131";
             stroke-width="1"
           />
         ))}
-        <rect x="346" y="140" width="54" height="88" fill={G} fill-opacity="0.28" stroke={G} stroke-width="1.2" />
+        <rect x="346" y="140" width="54" height="88" fill={G} fill-opacity="0.28" stroke={G} stroke-width="1.2" filter="url(#plate-glow)" />
         <line x1="130" y1="268" x2="670" y2="268" stroke={P} stroke-opacity="0.4" stroke-width="1.1" />
         {[168, 236, 312, 373, 444, 508, 561, 628].map((x, i) => (
           <line x1={x} y1="262" x2={x} y2="274" stroke={i === 3 ? G : P} stroke-opacity={i === 3 ? 1 : 0.6} stroke-width="1.3" />

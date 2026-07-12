@@ -75,16 +75,25 @@ screenshots are approved for publication.
 - `src/scripts/experience.ts` — loader; skips entirely (leaving a static
   SVG poster) when the visitor prefers reduced motion, has data-saver on,
   or lacks WebGL. Three.js is only downloaded when it will be used.
-- `src/webgl/core.ts` — scene: layered sheet geometry, flat-facet shading
-  via screen-space derivatives, fresnel silver edges, garnet glow, particle
-  field; damped pointer parallax; scroll-driven layer separation
-  (assembled → open through the middle sections → settled by the end).
+- `src/webgl/core.ts` — scene: layered sheet geometry with flat-facet
+  shading via screen-space derivatives, per-facet tonal variation, fresnel
+  silver edges with a faint spectral sheen; a molten garnet "heart" and
+  billboard halo inside the stack; a fullscreen atmosphere pass (gradient +
+  ember haze that follows the core); three particle depth layers (far
+  starfield, drifting dust, rising embers); damped pointer parallax and
+  hand-held camera sway; scroll-driven layer separation (assembled → open
+  through the middle sections → settled by the end); UnrealBloom
+  post-processing on high-tier desktops only.
 - `src/scripts/motion.ts` — pure, unit-tested helpers (separation curve,
   canvas presence, adaptive quality tiers, damping).
 
 Performance guardrails: DPR capped (2 desktop / 1.5 constrained), reduced
-layer/particle counts on small or low-memory devices, rendering paused on
-hidden tabs, no post-processing passes, single rAF loop.
+layer/particle counts on small or low-memory devices, bloom disabled below
+the high quality tier, rendering paused on hidden tabs, single rAF loop.
+
+DOM-side finish: site-wide film grain + vignette veil, magnetic buttons on
+fine pointers, and a homepage section-progress rail of six mineral sheets
+echoing the logo mark (all disabled or inert under reduced motion).
 
 ## Accessibility
 

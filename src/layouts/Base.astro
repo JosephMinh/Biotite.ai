@@ -59,6 +59,7 @@ const ogImage = new URL("/og.png", site.domain).href;
     </script>
   </head>
   <body class:list={[{ "is-bare": bare }]}>
+    <div class="veil" aria-hidden="true"></div>
     <a href="#main" class="skip-link">Skip to content</a>
     <SiteHeader />
     <main id="main" class:list={["site-main", { "site-main--bare": bare }]}>
@@ -99,6 +100,24 @@ const ogImage = new URL("/og.png", site.domain).href;
           { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
         );
         targets.forEach((el) => io.observe(el));
+      }
+
+      // Magnetic buttons: a few pixels of weighted pull on fine pointers.
+      if (
+        !prefersReduced &&
+        window.matchMedia("(pointer: fine)").matches
+      ) {
+        document.querySelectorAll<HTMLElement>(".btn").forEach((btn) => {
+          btn.addEventListener("pointermove", (e) => {
+            const r = btn.getBoundingClientRect();
+            const dx = (e.clientX - r.left - r.width / 2) / r.width;
+            const dy = (e.clientY - r.top - r.height / 2) / r.height;
+            btn.style.transform = `translate(${dx * 7}px, ${dy * 5}px)`;
+          });
+          btn.addEventListener("pointerleave", () => {
+            btn.style.transform = "";
+          });
+        });
       }
     </script>
   </body>
