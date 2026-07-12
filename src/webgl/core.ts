@@ -88,8 +88,8 @@ const sheetFragment = /* glsl */ `
     float facing = abs(dot(n, v));
     float fresnel = pow(1.0 - facing, 6.5);
 
-    // Near-black mineral base with a faint onyx cast.
-    vec3 base = vec3(0.016, 0.020, 0.017);
+    // True-black mineral base with the faintest onyx cast.
+    vec3 base = vec3(0.007, 0.009, 0.0075);
 
     // Cool key light + warm silver fill for facet definition.
     vec3 keyL = normalize(vec3(0.45, 0.85, 0.55));
@@ -97,17 +97,18 @@ const sheetFragment = /* glsl */ `
     float diff = max(dot(n, keyL), 0.0);
     float fill = max(dot(n, fillL), 0.0);
     vec3 col = base
-      + vec3(0.24, 0.25, 0.245) * pow(diff, 2.2) * 0.06
-      + vec3(0.20, 0.185, 0.17) * fill * 0.015;
+      + vec3(0.24, 0.25, 0.245) * pow(diff, 2.2) * 0.028
+      + vec3(0.20, 0.185, 0.17) * fill * 0.008;
 
     // Per-facet tonal variation so faces read as individual crystal planes.
     float facet = hash(n) * 0.5 + 0.5;
-    col *= 0.65 + facet * 0.55;
+    col *= 0.5 + facet * 0.62;
 
     // Silver cleavage-edge light with a faint spectral sheen.
     vec3 sheen = 0.5 + 0.5 * cos(6.2832 * (facing * 1.6 + vec3(0.0, 0.33, 0.67)));
     vec3 edge = vec3(0.64, 0.65, 0.64) + sheen * 0.08;
-    col += edge * fresnel * 0.8;
+    // Vary the edge catch per crystal plane so rims read cut, not coated.
+    col += edge * fresnel * 0.62 * (0.45 + 0.85 * facet);
 
     // Molten interior: garnet under-light that leaks from the stack's heart.
     float interior = 1.0 - smoothstep(0.0, 2.3, length(vLocal.xz));
@@ -129,7 +130,7 @@ const sheetFragment = /* glsl */ `
     float shimmer = 0.7 + 0.3 * sin(uTime * 2.2 + hv.y * 43.0);
     float glint = pow(align, 46.0) * step(0.62, hv.x) * shimmer;
     glint *= 0.3 + 0.7 * facing;
-    col += vec3(0.92, 0.94, 0.92) * glint * 2.3;
+    col += vec3(0.92, 0.94, 0.92) * glint * 2.7;
     // Rare warm glints near the heart.
     col += vec3(0.86, 0.20, 0.07)
       * pow(align, 80.0) * step(0.9, hv.z) * interior * 1.2;
@@ -693,7 +694,7 @@ export function createBiotiteCore(container: HTMLElement): void {
     // Atmosphere follows the core and swells with its energy.
     emberProj.copy(core.position).project(camera);
     atmoMat.uniforms.uEmber!.value.set(emberProj.x, emberProj.y);
-    atmoMat.uniforms.uEmberI!.value = 0.55 + energy * 0.7;
+    atmoMat.uniforms.uEmberI!.value = 0.68 + energy * 0.7;
     atmoMat.uniforms.uTime!.value = elapsed;
 
     dust.material.uniforms.uTime!.value = elapsed;
