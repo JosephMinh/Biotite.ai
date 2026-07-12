@@ -18,6 +18,7 @@ import {
   BufferGeometry,
   Color,
   Group,
+  HalfFloatType,
   IcosahedronGeometry,
   Mesh,
   PerspectiveCamera,
@@ -28,6 +29,7 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
+  WebGLRenderTarget,
 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -83,6 +85,23 @@ const sheetFragment = /* glsl */ `
       dot(cell, vec3(113.5, 271.9, 124.6)))) * 43758.5453);
   }
 
+  // One glitter layer: cells of size 1/freq, sparkling when their random
+  // micro-facet aligns with the half-vector.
+  float glitterLayer(vec3 local, vec3 half1, float freq, float thresh, float t) {
+    vec3 hv = hash3(floor(local * freq));
+    vec3 micro = normalize(hv * 2.0 - 1.0);
+    float align = max(dot(micro, half1), 0.0);
+    float shimmer = 0.7 + 0.3 * sin(t * 2.2 + hv.y * 43.0);
+    return pow(align, 46.0) * step(thresh, hv.x) * shimmer;
+  }
+
+  float warmLayer(vec3 local, vec3 half1, float freq) {
+    vec3 hv = hash3(floor(local * freq));
+    vec3 micro = normalize(hv * 2.0 - 1.0);
+    float align = max(dot(micro, half1), 0.0);
+    return pow(align, 80.0) * step(0.9, hv.z);
+  }
+
   void main() {
     // Faceted normals from screen-space derivatives (true flat shading).
     vec3 n = normalize(cross(dFdx(vViewPos), dFdy(vViewPos)));
@@ -124,18 +143,23 @@ const sheetFragment = /* glsl */ `
 
     // Schist glitter: micro-crystal cells whose random orientations flash
     // when they align with the half-vector — the rock twinkles as it turns.
-    vec3 cell = floor(vLocal * 34.0);
-    vec3 hv = hash3(cell);
-    vec3 micro = normalize(hv * 2.0 - 1.0);
+    // Two stable cell scales crossfaded by view distance keep the crystals
+    // micro-fine up close (fly-through) and calm at composition distance.
     vec3 half1 = normalize(v + keyL);
-    float align = max(dot(micro, half1), 0.0);
-    float shimmer = 0.7 + 0.3 * sin(uTime * 2.2 + hv.y * 43.0);
-    float glint = pow(align, 46.0) * step(0.62, hv.x) * shimmer;
+    float dist = length(vViewPos);
+    float nearW = 1.0 - smoothstep(3.0, 8.5, dist);
+
+    float glint =
+      glitterLayer(vLocal, half1, 34.0, 0.62, uTime) * (1.0 - nearW) +
+      glitterLayer(vLocal, half1, 130.0, 0.78, uTime) * nearW;
     glint *= 0.3 + 0.7 * facing;
     col += vec3(0.92, 0.94, 0.92) * glint * 2.7;
-    // Rare warm glints near the heart.
-    col += vec3(0.86, 0.20, 0.07)
-      * pow(align, 80.0) * step(0.9, hv.z) * interior * 1.2;
+
+    // Rare warm glints near the heart, same distance treatment.
+    float warm =
+      warmLayer(vLocal, half1, 34.0) * (1.0 - nearW) +
+      warmLayer(vLocal, half1, 130.0) * nearW;
+    col += vec3(0.86, 0.20, 0.07) * warm * interior * 1.2;
 
     // Contrast grade: crush the body toward true black to counteract the
     // sRGB output lift; highlights (glints, edges) pass through untouched.
@@ -460,7 +484,7 @@ export function createBiotiteCore(container: HTMLElement): void {
     const t = (i + 0.5) / n;
     const radius = 2.0 * (0.58 + 0.42 * Math.sin(Math.PI * t));
     const seed = i * 13.7 + 3.1;
-    const geometry = createSheetGeometry(radius, seed, highTier ? 3 : 2);
+    const geometry = createSheetGeometry(radius, seed, highTier ? 4 : 3);
     const centered = i > 0 && i < n - 1;
     const baseY = (i - (n - 1) / 2) * 0.3;
     const material = new ShaderMaterial({
@@ -574,7 +598,14 @@ export function createBiotiteCore(container: HTMLElement): void {
   /* Post-processing: low-strength bloom on capable desktops only. */
   let composer: EffectComposer | null = null;
   if (highTier) {
-    composer = new EffectComposer(renderer);
+    // MSAA + half-float target: without samples the composer path renders
+    // aliased, which reads as pixelation on close-up flake edges.
+    const target = new WebGLRenderTarget(
+      window.innerWidth * pixelRatio,
+      window.innerHeight * pixelRatio,
+      { samples: 4, type: HalfFloatType }
+    );
+    composer = new EffectComposer(renderer, target);
     composer.setPixelRatio(pixelRatio);
     composer.setSize(window.innerWidth, window.innerHeight);
     composer.addPass(new RenderPass(scene, camera));
