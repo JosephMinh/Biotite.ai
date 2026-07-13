@@ -240,6 +240,9 @@ const homeServices = services.filter((s) => s.id !== "enablement");
       .querySelectorAll<HTMLElement>("[data-rail-sheet]")
       .forEach((el) => sheets.set(el.dataset.railSheet!, el));
     const sections = document.querySelectorAll<HTMLElement>("[data-section]");
+    // During the opening fly-through no section crosses the observer band,
+    // so light the first sheet until real sections take over.
+    sheets.get("hero")?.classList.add("is-active");
     if ("IntersectionObserver" in window && sheets.size) {
       const io = new IntersectionObserver(
         (entries) => {

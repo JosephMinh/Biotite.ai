@@ -8,8 +8,11 @@
  * drifting dust, rising embers — give the scene depth, and capable desktops
  * get a low-strength bloom pass for the emissive interior.
  *
- * Driven by three inputs: time, damped pointer position, and document scroll
- * progress (layer separation + interior energy + canvas presence).
+ * Driven by time, damped pointer position, and document scroll. On fresh
+ * visits an opening fly-through (see introChoreography in motion.ts) carries
+ * the camera through the cleaved layers before the standard composition —
+ * scroll before the intro's end drives the fly-through, scroll after it
+ * drives layer separation, interior energy, and canvas presence.
  */
 
 import {
@@ -534,9 +537,7 @@ export function createBiotiteCore(container: HTMLElement): void {
       uIntensity: { value: 0.3 },
     },
   });
-  const halo = new Mesh(new SphereGeometry(1, 2, 2), haloMat);
-  // Replace geometry with a camera-facing quad via onBeforeRender trick:
-  halo.geometry.dispose();
+  // The halo is a camera-facing quad (billboarded each frame in the loop).
   const quad = new BufferGeometry();
   quad.setAttribute(
     "position",
@@ -550,7 +551,7 @@ export function createBiotiteCore(container: HTMLElement): void {
     new BufferAttribute(new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]), 2)
   );
   quad.setIndex([0, 1, 2, 0, 2, 3]);
-  halo.geometry = quad;
+  const halo = new Mesh(quad, haloMat);
   halo.frustumCulled = false;
   scene.add(halo);
 
@@ -632,7 +633,15 @@ export function createBiotiteCore(container: HTMLElement): void {
       ? Math.max(introEl.offsetHeight - window.innerHeight, 0)
       : 0;
   };
-  if (introEl && window.scrollY < window.innerHeight * 0.5) {
+  // Reloads and back/forward navigations restore their scroll position
+  // asynchronously — possibly after this check — so only fresh navigations
+  // get the fly-through; anything else would risk shifting the visitor
+  // 240vh away from where the browser puts them.
+  const navEntry = performance.getEntriesByType("navigation")[0] as
+    | PerformanceNavigationTiming
+    | undefined;
+  const freshVisit = !navEntry || navEntry.type === "navigate";
+  if (introEl && freshVisit && window.scrollY < window.innerHeight * 0.5) {
     document.documentElement.classList.add("has-core");
     measureIntro();
   }
@@ -687,17 +696,26 @@ export function createBiotiteCore(container: HTMLElement): void {
     running = !document.hidden;
     if (running) {
       last = performance.now();
-      requestAnimationFrame(tick);
+      schedule();
     }
   });
   onScroll();
 
-  /* Loop */
+  /* Loop. A single-flight guard prevents duplicate rAF chains when the tab
+     is hidden and shown again before the pending frame has fired. */
   const start = performance.now();
   let last = start;
+  let framePending = false;
   const emberProj = new Vector3();
 
+  function schedule() {
+    if (framePending) return;
+    framePending = true;
+    requestAnimationFrame(tick);
+  }
+
   function tick(now: number) {
+    framePending = false;
     if (!running) return;
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
@@ -809,8 +827,8 @@ export function createBiotiteCore(container: HTMLElement): void {
     } else {
       renderer.render(scene, camera);
     }
-    requestAnimationFrame(tick);
+    schedule();
   }
 
-  requestAnimationFrame(tick);
+  schedule();
 }
