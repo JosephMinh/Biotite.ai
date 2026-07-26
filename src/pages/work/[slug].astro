@@ -45,7 +45,19 @@ const sections = [
       </p>
 
       <div class="case-head__plate" data-reveal style="--reveal-delay:.18s">
-        <CasePlate variant={study.plate} />
+        {study.coverImage ? (
+          <img
+            src={study.coverImage}
+            alt={study.coverAlt ?? ""}
+            width="1600"
+            height="696"
+            fetchpriority="high"
+            decoding="async"
+            class="case-head__image"
+          />
+        ) : (
+          <CasePlate variant={study.plate} />
+        )}
       </div>
 
       <dl class="case-facts" data-reveal>
@@ -66,6 +78,17 @@ const sections = [
           <dd>{study.technologies.join(", ")}</dd>
         </div>
       </dl>
+
+      {study.metrics && (
+        <dl class="case-metrics" aria-label="Project outcomes" data-reveal>
+          {study.metrics.map((metric) => (
+            <div>
+              <dt class="t-display">{metric.value}</dt>
+              <dd class="t-mono">{metric.label}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </header>
 
     {sections.map((section, i) => (
@@ -86,6 +109,30 @@ const sections = [
         </div>
       </section>
     ))}
+
+    {study.media && (
+      <section class="section section--tight section--hairline wrap case-evidence">
+        <p class="eyebrow" data-reveal>Evidence from the system</p>
+        <h2 class="t-display t-xl case-evidence__title" data-reveal>
+          {study.mediaTitle}
+        </h2>
+        <div class="case-evidence__grid">
+          {study.media.map((item) => (
+            <figure data-reveal>
+              <div class="case-evidence__frame">
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <figcaption class="t-mono">{item.caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+    )}
 
     <section class="section section--hairline wrap">
       <p class="eyebrow" data-reveal>Related work</p>
@@ -157,6 +204,14 @@ const sections = [
     height: 100%;
   }
 
+  .case-head__image {
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+    border: 1px solid var(--c-line);
+    filter: saturate(0.82) contrast(1.06) brightness(0.84);
+  }
+
   .case-facts {
     display: grid;
     gap: 1.75rem;
@@ -170,8 +225,90 @@ const sections = [
     }
   }
 
+  .case-metrics {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .case-metrics div {
+    display: grid;
+    align-content: space-between;
+    min-height: 9rem;
+    padding: 1.25rem;
+    border: 1px solid var(--c-line);
+    background:
+      radial-gradient(100% 120% at 100% 100%, rgba(100, 0, 0, 0.18), transparent 65%),
+      var(--c-bg-raised);
+  }
+
+  .case-metrics dt {
+    font-size: clamp(2rem, 3vw, 3.3rem);
+    line-height: 1;
+    color: var(--c-porcelain);
+  }
+
+  .case-metrics dd {
+    margin: 1.5rem 0 0;
+    color: var(--c-faint);
+  }
+
+  @media (min-width: 42rem) {
+    .case-metrics {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
   .case-section__title {
     margin-top: 0.75rem;
+  }
+
+  .case-evidence__title {
+    max-width: 18em;
+    margin-top: 1.25rem;
+  }
+
+  .case-evidence__grid {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    margin-top: var(--space-block);
+  }
+
+  .case-evidence figure {
+    min-width: 0;
+  }
+
+  .case-evidence__frame {
+    overflow: hidden;
+    border: 1px solid var(--c-line);
+    background: #e8e9ec;
+  }
+
+  .case-evidence__frame img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .case-evidence figcaption {
+    margin-top: 0.85rem;
+    color: var(--c-faint);
+  }
+
+  @media (min-width: 48rem) {
+    .case-evidence__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .case-evidence figure:last-child {
+      grid-column: 1 / -1;
+      max-width: 52rem;
+      justify-self: center;
+    }
+
+    .case-evidence figure:last-child .case-evidence__frame img {
+      aspect-ratio: auto;
+    }
   }
 
   .related {

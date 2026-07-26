@@ -86,10 +86,19 @@ import { site } from "../data/site";
     <div class="split">
       <p class="eyebrow" data-reveal>Who you'll work with</p>
       <div class="founder-card" data-reveal>
-        <div class="founder-card__identity" aria-hidden="true">
-          <span class="founder-card__monogram t-display">JS</span>
-          <span class="founder-card__rule"></span>
-          <span class="t-mono">Founder / Engineer</span>
+        <div class="founder-card__identity">
+          <img
+            src="/joe-samara.webp"
+            alt="Joe Samara, founder and engineer at Biotite Solutions"
+            width="460"
+            height="460"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="founder-card__identity-label">
+            <span class="founder-card__rule"></span>
+            <span class="t-mono">Founder / Engineer</span>
+          </div>
         </div>
         <div>
           <p class="t-mono founder-card__role">Founder-led by design</p>
@@ -181,28 +190,40 @@ import { site } from "../data/site";
   }
 
   .founder-card__identity {
+    position: relative;
     min-height: 15rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.5rem;
+    overflow: hidden;
     border: 1px solid var(--c-line);
-    background:
-      linear-gradient(145deg, rgba(253, 255, 252, 0.04), transparent 55%),
-      radial-gradient(80% 70% at 72% 32%, rgba(163, 49, 49, 0.24), transparent 70%),
-      #060906;
+    background: #060906;
   }
 
-  .founder-card__identity .t-mono {
+  .founder-card__identity::after {
+    content: "";
+    position: absolute;
+    inset: 35% 0 0;
+    background: linear-gradient(180deg, transparent, rgba(2, 5, 3, 0.92));
+  }
+
+  .founder-card__identity img {
+    width: 100%;
+    height: 100%;
+    min-height: 21rem;
+    object-fit: cover;
+    object-position: center top;
+    filter: saturate(0.76) contrast(1.06);
+  }
+
+  .founder-card__identity-label {
+    position: absolute;
+    z-index: 1;
+    inset: auto 1.5rem 1.5rem;
+    display: grid;
+    gap: 0.9rem;
+    justify-items: start;
+  }
+
+  .founder-card__identity-label .t-mono {
     color: var(--c-faint);
-  }
-
-  .founder-card__monogram {
-    font-size: clamp(4.5rem, 10vw, 7rem);
-    line-height: 0.8;
-    color: var(--c-porcelain);
   }
 
   .founder-card__rule {

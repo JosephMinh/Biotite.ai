@@ -6,9 +6,9 @@
  * described qualitatively. `publicationRestrictions` records what is currently
  * withheld so future updates are deliberate.
  *
- * `plate` selects the abstract art-directed cover for the project (see
- * CasePlate.astro) — original geometric artwork is used instead of client
- * screenshots until screenshots are approved for publication.
+ * `plate` selects the abstract art-directed fallback cover (see
+ * CasePlate.astro). Approved projects can replace it with `coverImage` and
+ * add a metrics/evidence gallery without changing the page template.
  */
 
 export interface CaseStudy {
@@ -24,6 +24,11 @@ export interface CaseStudy {
   solution: string[];
   outcomes: string[];
   plate: "strata" | "flow" | "lens" | "lattice" | "index";
+  coverImage?: string;
+  coverAlt?: string;
+  metrics?: Array<{ value: string; label: string }>;
+  mediaTitle?: string;
+  media?: Array<{ src: string; alt: string; caption: string }>;
   featured: boolean;
   publicationRestrictions: string;
 }
@@ -92,32 +97,58 @@ export const caseStudies: CaseStudy[] = [
   {
     slug: "vision-analysis-pipeline",
     title: "Image analysis pipelines for production imagery",
-    anonymizedClientName: "Manufacturing company",
+    anonymizedClientName: "Fortune 100 company",
     industry: "Manufacturing",
     shortSummary:
-      "OpenCV-based image analysis pipelines that turn production imagery into structured data a manufacturing team can act on.",
+      "An OpenCV analysis system that measures inkjet droplets across six colors, rejects dust and scratches, and turns hundreds of test strips into decision-ready data.",
     services: ["Computer vision & multimodal pipelines"],
     technologies: ["Python", "OpenCV", "Image processing"],
     challenge: [
-      "The operation generated visual material that carried real information — but extracting that information depended on people looking at images, which doesn't scale and doesn't produce structured records.",
-      "The client needed the analysis to be consistent, repeatable, and fast enough to keep up with production, without replacing the judgment of the people responsible for quality.",
+      "The company needed to compare how six ink formulations spread after landing on a test surface. Each printed droplet was roughly 150 microns across, and a reliable decision required measuring a meaningful sample rather than inspecting a handful by eye.",
+      "Manual measurement would have taken weeks. Generic image tools measured one droplet at a time, while dust and scratches were visually similar enough to droplets to skew a conventional contour analysis.",
     ],
     approach: [
-      "We favor the simplest technique that solves the problem: classical computer vision where it's sufficient, learned models where it isn't. That keeps the pipeline explainable and cheap to run.",
-      "The pipeline was developed and validated against the client's own imagery, so its behavior was understood on real material before it was relied on.",
+      "The pipeline first located the bounded test strip, divided it into six color regions with engineered margins, and used OpenCV contour analysis to identify plausible droplets and draw bounding circles around them.",
+      "To remove false positives, we developed a “Smaller Neighbor” algorithm. It compared nearby detections and discarded the smaller candidate, using the droplets' regular spacing to separate real printed dots from dust and scratches.",
     ],
     solution: [
-      "Biotite built image analysis pipelines with OpenCV that process production imagery automatically: normalizing inputs, extracting the features that matter to the operation, and emitting structured results instead of raw pictures.",
-      "The output integrates with the client's existing workflow, so analysis arrives where decisions are made rather than in a separate tool nobody opens.",
+      "The resulting Python application processes each high-resolution test image, isolates all six ink colors, filters the detections, calculates mean diameters, and exports both annotated evidence and structured measurements.",
+      "It ran on a laptop and processed hundreds of test strips, giving the engineering team a repeatable analysis they could inspect rather than an opaque model output.",
     ],
     outcomes: [
-      "Visual material that previously required manual inspection is now analyzed automatically and consistently.",
-      "The team works from structured results — reviewable, comparable across time — rather than from images and memory.",
+      "A task estimated to take weeks was reduced to minutes, saving more than $33,000 per year in labor.",
+      "The measurements showed that the cyan ink spread substantially more than the other formulations, giving the company evidence to replace it before production use.",
     ],
     plate: "lens",
+    coverImage: "/work/vision-analysis/dots-refined.webp",
+    coverAlt:
+      "Annotated ink-drop analysis after the smaller-neighbor filtering algorithm",
+    metrics: [
+      { value: "$33K+", label: "annual labor savings" },
+      { value: "Weeks → minutes", label: "analysis cycle" },
+      { value: "Hundreds", label: "test strips processed on a laptop" },
+    ],
+    mediaTitle: "From noisy detections to decision-ready measurements",
+    media: [
+      {
+        src: "/work/vision-analysis/dots-filtered.webp",
+        alt: "Initial contour filtering with dust and scratch false positives still selected",
+        caption: "Initial contour filtering",
+      },
+      {
+        src: "/work/vision-analysis/dots-refined.webp",
+        alt: "Refined droplet detections after applying the smaller-neighbor algorithm",
+        caption: "After the Smaller Neighbor algorithm",
+      },
+      {
+        src: "/work/vision-analysis/dot-diameters.webp",
+        alt: "Bar chart comparing mean dot diameters across six ink colors",
+        caption: "Mean dot diameters revealed the cyan outlier",
+      },
+    ],
     featured: true,
     publicationRestrictions:
-      "Client name, imagery, use-case specifics, and quantitative results withheld pending approval.",
+      "Client name and raw production imagery withheld; derived analysis visuals and results supplied for publication.",
   },
   {
     slug: "rag-knowledge-system",

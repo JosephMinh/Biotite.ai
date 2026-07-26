@@ -66,9 +66,10 @@ Page-level copy (hero, positioning, principles, contact) lives in the
 corresponding file under `src/pages/`. The flat data model is deliberately
 Sanity-shaped so a later CMS migration is mechanical.
 
-Case-study covers are original geometric SVG motifs (`CasePlate.astro`,
-variants `strata / flow / lens / lattice / index`) used until client
-screenshots are approved for publication.
+Case studies fall back to original geometric SVG motifs (`CasePlate.astro`,
+variants `strata / flow / lens / lattice / index`). Approved projects can
+instead provide real cover media, outcome metrics, and an evidence gallery
+through the same data model.
 
 ## The WebGL experience
 
