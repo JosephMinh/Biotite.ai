@@ -44,6 +44,7 @@ import {
   introChoreography,
   layerSeparation,
   pickQuality,
+  shouldPlayIntro,
   smooth01,
 } from "../scripts/motion";
 
@@ -665,9 +666,12 @@ export function createBiotiteCore(container: HTMLElement): void {
   }
   if (
     introEl &&
-    freshVisit &&
-    !introSeen &&
-    window.scrollY < window.innerHeight * 0.5
+    shouldPlayIntro({
+      freshVisit,
+      introSeen,
+      scrollY: window.scrollY,
+      viewportH: window.innerHeight,
+    })
   ) {
     document.documentElement.classList.add("has-core");
     measureIntro();

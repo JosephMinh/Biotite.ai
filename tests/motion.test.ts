@@ -6,6 +6,7 @@ import {
   introChoreography,
   layerSeparation,
   pickQuality,
+  shouldPlayIntro,
 } from "../src/scripts/motion";
 
 describe("clamp01", () => {
@@ -117,6 +118,25 @@ describe("introChoreography", () => {
 
   it("ends behind the stack, ready for the emergence", () => {
     expect(introChoreography(1).cameraZ).toBeLessThan(-4);
+  });
+});
+
+describe("shouldPlayIntro", () => {
+  const firstVisit = {
+    freshVisit: true,
+    introSeen: false,
+    scrollY: 0,
+    viewportH: 900,
+  };
+
+  it("plays for a fresh, unseen visit at the top of the page", () => {
+    expect(shouldPlayIntro(firstVisit)).toBe(true);
+  });
+
+  it("skips repeat, restored, and mid-page visits", () => {
+    expect(shouldPlayIntro({ ...firstVisit, introSeen: true })).toBe(false);
+    expect(shouldPlayIntro({ ...firstVisit, freshVisit: false })).toBe(false);
+    expect(shouldPlayIntro({ ...firstVisit, scrollY: 600 })).toBe(false);
   });
 });
 

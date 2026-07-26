@@ -41,6 +41,22 @@ export function canvasOpacity(scrollY: number, viewportH: number): number {
   return 1 - p * 0.72;
 }
 
+export interface IntroEligibility {
+  freshVisit: boolean;
+  introSeen: boolean;
+  scrollY: number;
+  viewportH: number;
+}
+
+/** Only a fresh, unseen, top-of-page visit should insert the intro stage. */
+export function shouldPlayIntro(input: IntroEligibility): boolean {
+  return (
+    input.freshVisit &&
+    !input.introSeen &&
+    input.scrollY < input.viewportH * 0.5
+  );
+}
+
 /**
  * Opening fly-through choreography. `p` is progress through the intro's
  * scroll distance (0 = page top, 1 = intro complete).
