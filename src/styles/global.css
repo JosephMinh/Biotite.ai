@@ -12,9 +12,10 @@
   --c-pitch: #191308;
   --c-porcelain: #fdfffc;
   --c-silver: #a3a3a3;
-  --c-faint: #6f746f;
+  --c-faint: #747974;
   --c-garnet: #640000;
   --c-garnet-bright: #a33131;
+  --c-garnet-text: #cc5656;
   --c-line: rgba(253, 255, 252, 0.09);
   --c-line-strong: rgba(253, 255, 252, 0.2);
 
@@ -35,7 +36,7 @@
   /* Layout */
   --page-max: 84rem;
   --gutter: clamp(1.25rem, 4vw, 4rem);
-  --space-section: clamp(6rem, 12vw, 11rem);
+  --space-section: clamp(5.5rem, 10vw, 9rem);
   --space-block: clamp(2.5rem, 5vw, 4.5rem);
 
   /* Motion */
@@ -424,7 +425,7 @@ h4 {
   font-size: var(--text-xs);
   font-weight: 500;
   letter-spacing: 0.14em;
-  color: var(--c-garnet-bright);
+  color: var(--c-garnet-text);
 }
 
 /* Prose blocks for case studies / legal */

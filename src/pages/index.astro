@@ -16,23 +16,21 @@ const homeServices = services.filter((s) => s.id !== "enablement");
        The static poster below is the no-WebGL / reduced-motion fallback. -->
   <div class="experience" aria-hidden="true" data-experience>
     <div class="experience__poster" data-poster>
-      <svg viewBox="0 0 900 900" fill="none" class="experience__poster-svg">
-        <defs>
-          <radialGradient id="poster-ember" cx="50%" cy="52%" r="52%">
-            <stop offset="0%" stop-color="#5a1004" stop-opacity="0.55"></stop>
-            <stop offset="45%" stop-color="#3a0800" stop-opacity="0.25"></stop>
-            <stop offset="100%" stop-color="#000000" stop-opacity="0"></stop>
-          </radialGradient>
-        </defs>
-        <rect width="900" height="900" fill="url(#poster-ember)"></rect>
-        <g opacity="0.95">
-          <path d="M270 330 L640 245 L672 322 L302 407 Z" fill="#10130f" stroke="rgba(253,255,252,0.34)" stroke-width="1.2"/>
-          <path d="M240 435 L610 350 L648 430 L278 515 Z" fill="#0b0e0b" stroke="rgba(253,255,252,0.22)" stroke-width="1.2"/>
-          <path d="M676 338 L742 323 L758 362 L692 377 Z" fill="#640000" stroke="rgba(163,49,49,0.8)" stroke-width="1.2"/>
-          <path d="M262 540 L632 455 L664 532 L294 617 Z" fill="#080a08" stroke="rgba(253,255,252,0.14)" stroke-width="1.2"/>
-          <path d="M300 645 L670 560 L696 625 L326 710 Z" fill="#060806" stroke="rgba(253,255,252,0.09)" stroke-width="1.2"/>
-        </g>
-      </svg>
+      <picture class="experience__poster-picture">
+        <source
+          media="(max-width: 60rem)"
+          srcset="/core-poster-mobile.webp"
+        />
+        <img
+          src="/core-poster-desktop.webp"
+          alt=""
+          width="1920"
+          height="1200"
+          decoding="async"
+          fetchpriority="high"
+          class="experience__poster-image"
+        />
+      </picture>
     </div>
   </div>
 
@@ -52,7 +50,7 @@ const homeServices = services.filter((s) => s.id !== "enablement");
        reduced-motion, no-JS, and no-WebGL visitors land directly on
        the hero. -->
   <div class="intro" data-intro aria-hidden="true">
-    <p class="intro__cue t-mono">Scroll</p>
+    <p class="intro__cue t-mono">Scroll to enter</p>
   </div>
 
   <!-- ============================ Hero ============================ -->
@@ -105,6 +103,31 @@ const homeServices = services.filter((s) => s.id !== "enablement");
             <dt>Engagements</dt>
             <dd>Typically 3–6 months; minimum six weeks</dd>
           </dl>
+        </div>
+        <div class="system-anatomy" data-reveal>
+          <div class="system-anatomy__intro">
+            <p class="t-mono system-anatomy__label">System anatomy</p>
+            <p>
+              The exact stack changes with the problem. The discipline does
+              not: every relevant layer is engineered as part of the same
+              working system.
+            </p>
+          </div>
+          <ol class="system-stack" aria-label="Layers of a production AI system">
+            {[
+              "Interface",
+              "Backend",
+              "Integrations",
+              "Agent logic",
+              "Model behavior",
+              "Proprietary data",
+            ].map((layer, i) => (
+              <li style={`--layer-index:${i}`}>
+                <span class="numeral">{String(6 - i).padStart(2, "0")}</span>
+                <span>{layer}</span>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </div>
@@ -325,22 +348,67 @@ const homeServices = services.filter((s) => s.id !== "enablement");
   .experience__poster {
     position: absolute;
     inset: 0;
-    display: grid;
-    place-items: center;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.8s var(--ease-out);
   }
 
-  .experience__poster-svg {
-    width: min(78vmin, 46rem);
-    height: auto;
-    margin-left: 32vw;
-    opacity: 0.85;
+  .experience__poster.is-retiring {
+    opacity: 0;
+  }
+
+  .experience__poster-picture {
+    position: absolute;
+    inset: 0;
+  }
+
+  .experience__poster-image {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .experience__poster::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(2, 5, 3, 0.56) 0%, transparent 56%),
+      linear-gradient(180deg, transparent 68%, rgba(2, 5, 3, 0.32) 100%);
   }
 
   @media (max-width: 60rem) {
-    .experience__poster-svg {
-      margin-left: 0;
-      margin-top: -30vh;
-      opacity: 0.4;
+    .experience__poster-picture {
+      inset: 5.25rem auto auto 50%;
+      width: min(118vw, 38rem);
+      aspect-ratio: 1;
+      transform: translateX(-50%);
+      -webkit-mask-image: linear-gradient(
+        180deg,
+        transparent,
+        #000 12%,
+        #000 72%,
+        transparent
+      );
+      mask-image: linear-gradient(
+        180deg,
+        transparent,
+        #000 12%,
+        #000 72%,
+        transparent
+      );
+      opacity: 0.78;
+      mix-blend-mode: screen;
+    }
+
+    .experience__poster::after {
+      background:
+        linear-gradient(90deg, rgba(2, 5, 3, 0.28), transparent 85%),
+        linear-gradient(180deg, transparent 30%, rgba(2, 5, 3, 0.48) 67%);
     }
   }
 
@@ -351,8 +419,8 @@ const homeServices = services.filter((s) => s.id !== "enablement");
 
   :global(html.has-core) .intro {
     display: block;
-    height: 240vh;
-    height: 240svh;
+    height: 180vh;
+    height: 180svh;
     position: relative;
   }
 
@@ -407,6 +475,13 @@ const homeServices = services.filter((s) => s.id !== "enablement");
     justify-content: flex-end;
     padding-block: 7rem 2.25rem;
     position: relative;
+  }
+
+  :global(html.has-core) .hero {
+    /* The hero occupies the intro's final viewport. When the camera cut
+       completes at introEnd, the value proposition is already on screen. */
+    margin-top: -100vh;
+    margin-top: -100svh;
   }
 
   .hero__content {
@@ -529,6 +604,83 @@ const homeServices = services.filter((s) => s.id !== "enablement");
     }
   }
 
+  .system-anatomy {
+    position: relative;
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    margin-top: var(--space-block);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid var(--c-line);
+    overflow: hidden;
+    background:
+      radial-gradient(90% 120% at 100% 50%, rgba(100, 0, 0, 0.2), transparent 62%),
+      color-mix(in srgb, var(--c-bg-raised) 92%, transparent);
+  }
+
+  .system-anatomy::before {
+    content: "";
+    position: absolute;
+    width: 0.7rem;
+    aspect-ratio: 1;
+    top: 1rem;
+    right: 1rem;
+    background: var(--c-garnet-bright);
+    clip-path: polygon(12% 0, 100% 10%, 88% 100%, 0 86%);
+  }
+
+  .system-anatomy__intro {
+    align-self: center;
+    max-width: 26rem;
+    color: var(--c-silver);
+  }
+
+  .system-anatomy__label {
+    margin-bottom: 0.85rem;
+    color: var(--c-garnet-text);
+  }
+
+  .system-stack {
+    list-style: none;
+    display: grid;
+    gap: 0.45rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  .system-stack li {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    align-items: center;
+    min-height: 2.6rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--c-porcelain) 12%, transparent);
+    color: var(--c-porcelain);
+    background: color-mix(
+      in srgb,
+      var(--c-bg-raised) calc(84% - var(--layer-index) * 3%),
+      var(--c-garnet)
+    );
+    transform: translateX(calc(var(--layer-index) * -0.45rem));
+    clip-path: polygon(1.5% 0, 100% 5%, 98.5% 100%, 0 94%);
+  }
+
+  .system-stack .numeral {
+    font-size: 0.625rem;
+  }
+
+  @media (min-width: 48rem) {
+    .system-anatomy {
+      grid-template-columns: minmax(0, 5fr) minmax(18rem, 7fr);
+      align-items: center;
+    }
+  }
+
+  @media (max-width: 32rem) {
+    .system-stack li {
+      transform: none;
+    }
+  }
+
   /* Services */
   .svc-list {
     list-style: none;
@@ -565,7 +717,7 @@ const homeServices = services.filter((s) => s.id !== "enablement");
   }
 
   .svc__proof .t-mono {
-    color: var(--c-garnet-bright);
+    color: var(--c-garnet-text);
   }
 
   .svc__proof:hover,

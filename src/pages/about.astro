@@ -85,40 +85,48 @@ import { site } from "../data/site";
   <section class="section--hairline section wrap">
     <div class="split">
       <p class="eyebrow" data-reveal>Who you'll work with</p>
-      <div>
-        <div class="prose" data-reveal>
+      <div class="founder-card" data-reveal>
+        <div class="founder-card__identity" aria-hidden="true">
+          <span class="founder-card__monogram t-display">JS</span>
+          <span class="founder-card__rule"></span>
+          <span class="t-mono">Founder / Engineer</span>
+        </div>
+        <div>
+          <p class="t-mono founder-card__role">Founder-led by design</p>
+          <h2 class="t-display t-xl founder-card__name">Joe Samara</h2>
+          <div class="prose founder-card__bio">
           <p>
-            Biotite Solutions was founded by <strong>Joe Samara</strong>, an
-            engineer who has designed and delivered AI systems for biotech,
-            technology, and manufacturing companies: custom agents in
-            TypeScript and Python, image analysis pipelines with OpenCV,
-            retrieval-augmented knowledge systems, AI-assisted video
-            tagging, and executive decision-support dashboards integrated in
-            real time with systems like HiBob and Greenhouse.
+              An engineer who has designed and delivered AI systems for
+              biotech, technology, and manufacturing companies: custom agents
+              in TypeScript and Python, image analysis pipelines with OpenCV,
+              retrieval-augmented knowledge systems, AI-assisted video tagging,
+              and executive decision-support dashboards integrated in real time
+              with systems like HiBob and Greenhouse.
           </p>
           <p>
             When you engage Biotite, the person you meet on the first call is
             the person who architects and builds your system.
           </p>
+          </div>
+          <ul class="about-links">
+            <li>
+              <a href={site.social.linkedin} class="link-arrow" rel="noopener">
+                LinkedIn
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
+                </svg>
+              </a>
+            </li>
+            <li>
+              <a href={site.social.youtube} class="link-arrow" rel="noopener">
+                YouTube
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
+                </svg>
+              </a>
+            </li>
+          </ul>
         </div>
-        <ul class="about-links" data-reveal>
-          <li>
-            <a href={site.social.linkedin} class="link-arrow" rel="noopener">
-              LinkedIn
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
-              </svg>
-            </a>
-          </li>
-          <li>
-            <a href={site.social.youtube} class="link-arrow" rel="noopener">
-              YouTube
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
-              </svg>
-            </a>
-          </li>
-        </ul>
       </div>
     </div>
   </section>
@@ -160,5 +168,65 @@ import { site } from "../data/site";
     gap: 2rem;
     margin: 2rem 0 0;
     padding: 0;
+  }
+
+  .founder-card {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid var(--c-line);
+    background:
+      radial-gradient(100% 140% at 0 0, rgba(100, 0, 0, 0.18), transparent 60%),
+      var(--c-bg-raised);
+  }
+
+  .founder-card__identity {
+    min-height: 15rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--c-line);
+    background:
+      linear-gradient(145deg, rgba(253, 255, 252, 0.04), transparent 55%),
+      radial-gradient(80% 70% at 72% 32%, rgba(163, 49, 49, 0.24), transparent 70%),
+      #060906;
+  }
+
+  .founder-card__identity .t-mono {
+    color: var(--c-faint);
+  }
+
+  .founder-card__monogram {
+    font-size: clamp(4.5rem, 10vw, 7rem);
+    line-height: 0.8;
+    color: var(--c-porcelain);
+  }
+
+  .founder-card__rule {
+    width: 3rem;
+    height: 1px;
+    background: var(--c-garnet-bright);
+  }
+
+  .founder-card__role {
+    color: var(--c-garnet-text);
+  }
+
+  .founder-card__name {
+    margin-top: 0.7rem;
+  }
+
+  .founder-card__bio {
+    margin-top: 1.25rem;
+  }
+
+  @media (min-width: 48rem) {
+    .founder-card {
+      grid-template-columns: minmax(12rem, 4fr) minmax(0, 8fr);
+      align-items: stretch;
+    }
   }
 </style>

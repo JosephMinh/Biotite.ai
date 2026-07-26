@@ -619,13 +619,27 @@ export function createBiotiteCore(container: HTMLElement): void {
     composer.addPass(bloom);
   }
 
-  /* Poster swap */
+  /* Keep the poster under the canvas until the first rendered frames are
+     useful. This makes it both the no-WebGL experience and the WebGL loading
+     state, avoiding a black flash while the sheets assemble. */
   container.appendChild(renderer.domElement);
-  container.querySelector("[data-poster]")?.remove();
+  const posterEl =
+    container.querySelector<HTMLElement>("[data-poster]") ?? null;
+  let posterRetiring = false;
+  let contextAvailable = true;
+  renderer.domElement.addEventListener("webglcontextlost", (event) => {
+    event.preventDefault();
+    contextAvailable = false;
+    posterRetiring = false;
+    posterEl?.classList.remove("is-retiring");
+  });
+  renderer.domElement.addEventListener("webglcontextrestored", () => {
+    contextAvailable = true;
+  });
 
   /* Opening fly-through: enable the intro scroll stage only when WebGL is
      live and the visitor is still at the top of the page (a mid-page load
-     must not have 240vh inserted above it). */
+     must not have an intro stage inserted above it). */
   const introEl = document.querySelector<HTMLElement>("[data-intro]");
   let introEnd = 0;
   const measureIntro = () => {
@@ -641,7 +655,20 @@ export function createBiotiteCore(container: HTMLElement): void {
     | PerformanceNavigationTiming
     | undefined;
   const freshVisit = !navEntry || navEntry.type === "navigate";
-  if (introEl && freshVisit && window.scrollY < window.innerHeight * 0.5) {
+  const introSessionKey = "biotite-intro-seen";
+  let introSeen = false;
+  try {
+    introSeen = window.sessionStorage.getItem(introSessionKey) === "1";
+  } catch {
+    // Storage can be unavailable in hardened browsing modes. The experience
+    // remains fully usable; it simply behaves like a first visit.
+  }
+  if (
+    introEl &&
+    freshVisit &&
+    !introSeen &&
+    window.scrollY < window.innerHeight * 0.5
+  ) {
     document.documentElement.classList.add("has-core");
     measureIntro();
   }
@@ -674,6 +701,14 @@ export function createBiotiteCore(container: HTMLElement): void {
     heroOpacity = canvasOpacity(mainScroll, window.innerHeight);
     if (introCue) {
       introCue.style.opacity = String(1 - smooth01(0.03, 0.1, introProgress));
+    }
+    if (!introSeen && introEnd > 0 && introProgress >= 0.98) {
+      introSeen = true;
+      try {
+        window.sessionStorage.setItem(introSessionKey, "1");
+      } catch {
+        // See the storage note above.
+      }
     }
   };
 
@@ -826,6 +861,11 @@ export function createBiotiteCore(container: HTMLElement): void {
       composer.render();
     } else {
       renderer.render(scene, camera);
+    }
+
+    if (contextAvailable && !posterRetiring && elapsed > 0.45) {
+      posterRetiring = true;
+      posterEl?.classList.add("is-retiring");
     }
     schedule();
   }
