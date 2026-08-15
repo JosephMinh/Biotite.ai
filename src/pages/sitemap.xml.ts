@@ -9,6 +9,8 @@ const staticPaths = [
   "/about/",
   "/contact/",
   "/privacy/",
+  "/blabb/privacy/",
+  "/blabb/terms/",
 ];
 
 export const GET: APIRoute = () => {
